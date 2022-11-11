@@ -16,6 +16,10 @@ model User {
 
   password Password?
   notes    Note[]
+
+  friends FriendMapper[] @relation("FriendPointer")
+  selves  FriendMapper[] @relation("SelfPointer")
+  meals   Meal[]
 }
 
 model Password {
@@ -35,4 +39,56 @@ model Note {
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String
+}
+
+model Restaurant {
+  id    String @id @default(cuid())
+  name  String
+
+  cuisine RestaurantCuisineMapper[]
+  meals   Meal[]
+}
+
+model Cuisine {
+  id    String @id @default(cuid())
+  name  String @unique
+
+  restaurants RestaurantCuisineMapper[]
+}
+
+model RestaurantCuisineMapper {
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  restaurantId String
+
+  cuisine   Cuisine @relation(fields: [cuisineId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  cuisineId String
+  
+  @@id([restaurantId, cuisineId])
+}
+
+model FriendMapper {
+  id String @id @default(cuid())
+
+  friend   User   @relation("FriendPointer", fields: [friendId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  friendId String
+
+  self   User   @relation("SelfPointer", fields: [selfId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  selfId String
+}
+
+model Meal {
+  id String @id @default(cuid())
+  
+  eatenAt     DateTime @default(now())
+  notes       String
+  dish        String
+  rating      Int
+  queueTime   Int
+  reservation Boolean
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String
+
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  restaurantId String
 }
