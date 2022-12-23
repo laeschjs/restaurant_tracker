@@ -40,6 +40,56 @@ async function seed() {
     },
   });
 
+  const restaurants = [
+    {
+      name: "Walk-On's Sports Bistreaux",
+      cuisine: ["American"],
+    },
+    {
+      name: "Fords",
+      cuisine: ["American", "Brunch"],
+    },
+    {
+      name: "First Watch",
+      cuisine: ["Brunch"],
+    },
+    {
+      name: "Cracker Barrel",
+      cuisine: ["American, Brunch"],
+    },
+    {
+      name: "Denny's",
+      cuisine: ["American", "Brunch"],
+    },
+    {
+      name: "IHOP",
+      cuisine: ["American", "Brunch"],
+    },
+    {
+      name: "Keke's Breakfast Cafe",
+      cuisine: ["Brunch"],
+    },
+  ];
+
+  for (const seed of restaurants) {
+    const restaurant = await prisma.restaurant.create({
+      data: { name: seed.name },
+    });
+    for (const seed2 of seed.cuisine) {
+      const cuisine = await prisma.cuisine.upsert({
+        where: { name: seed2 },
+        create: { name: seed2 },
+        update: { name: seed2 },
+      });
+      await prisma.restaurantCuisineMapper.create({
+        data: {
+          restaurantId: restaurant.id,
+          cuisineId: cuisine.id,
+        },
+      });
+    }
+  }
+
   console.log(`Database has been seeded. 🌱`);
 }
 
