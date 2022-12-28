@@ -1,9 +1,86 @@
-import { Form } from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
+import { json, redirect } from "@remix-run/node";
+import { useState } from "react";
+
+import { getRestaurants, createMeal } from "~/models/restaurant.server";
+import { requireUserId } from "~/session.server";
+
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+
+export async function loader({ request }: LoaderArgs) {
+  const restaurants = await getRestaurants();
+  return json({ restaurants });
+}
+
+export async function action({ request }: ActionArgs) {
+  const userId = await requireUserId(request);
+
+  const formData = await request.formData();
+
+  await createMeal({
+    dish: `${formData.get("dish")}`,
+    notes: `${formData.get("notes")}`,
+    rating: parseInt(`${formData.get("rating")}`),
+    cost: parseFloat(`${formData.get("cost")}`),
+    reservation: formData.get("reservation") === "true",
+    queueTime: parseInt(`${formData.get("queueTime")}`),
+    restaurantId: `${formData.get("new_restaurant")}`,
+    userId,
+  });
+
+  return redirect("/restaurants");
+}
 
 export default function NewMealPage() {
+  const data = useLoaderData<typeof loader>();
+  const restaurants = data.restaurants.slice();
+  restaurants.push({ id: "add_new", name: "Add New" });
+  const [isAddingNew, setIsAddingNew] = useState(false);
+
+  /*
+    - The below link for reloadDocument also has a section on animating. Seems dumb I have to build it from
+      scratch but would make it nice. Save it for a follow up
+  */
   return (
     <div className="mx-auto flex max-w-lg">
-      <Form method="post" className="w-full rounded-md bg-white p-5 shadow-lg">
+      <Form
+        id="new_restaurant"
+        method="post"
+        className="w-full rounded-md bg-white p-5 shadow-lg"
+        //The line below https://remix.run/docs/en/v1/guides/data-writes and search
+        reloadDocument
+      >
+        <label className="my-3 flex grid grid-cols-4 items-center gap-1">
+          <span className="col-span-1">Restaurant: </span>
+          <select
+            name="new_restaurant"
+            className="col-span-3 rounded-md border-2 border-sky-500 px-3 leading-loose"
+            onChange={(e) => {
+              if (e.target.value === "add_new") {
+                setIsAddingNew(true);
+              } else {
+                setIsAddingNew(false);
+              }
+            }}
+          >
+            {restaurants.map((restaurant) => {
+              return (
+                <option key={restaurant.id} value={restaurant.id}>
+                  {restaurant.name}
+                </option>
+              );
+            })}
+          </select>
+        </label>
+        {isAddingNew && (
+          <label className="my-3 flex grid grid-cols-4 items-center gap-1">
+            <span className="col-span-1">New Restaurant: </span>
+            <input
+              name="new_restaurant_user_input"
+              className="col-span-3 rounded-md border-2 border-sky-500 px-3 leading-loose"
+            />
+          </label>
+        )}
         <label className="my-3 flex grid grid-cols-4 items-center gap-1">
           <span className="col-span-1">Dish: </span>
           <input
