@@ -19,7 +19,7 @@ export default function Index() {
                 {user ? (
                   <>
                     <Link
-                      to="/restaurants"
+                      to="/meals"
                       className="mx-3 flex items-center justify-center rounded-md bg-pink-400 px-4 py-3 font-medium text-white hover:bg-pink-600"
                     >
                       View Restaurants
