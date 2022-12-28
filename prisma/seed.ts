@@ -40,6 +40,11 @@ async function seed() {
     },
   });
 
+  await prisma.restaurantCuisineMapper.deleteMany({});
+  await prisma.meal.deleteMany({});
+  await prisma.cuisine.deleteMany({});
+  await prisma.restaurant.deleteMany({});
+
   const restaurants = [
     {
       name: "Walk-On's Sports Bistreaux",
