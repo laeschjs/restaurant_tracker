@@ -1,4 +1,4 @@
-app = "restaurant_tracker-c90f"
+app = "restaurant-tracker-c90f"
 kill_signal = "SIGINT"
 kill_timeout = 5
 processes = [ ]
