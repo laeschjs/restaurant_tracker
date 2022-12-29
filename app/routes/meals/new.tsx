@@ -1,4 +1,4 @@
-import { Form, useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData, Link } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
 import { useState } from "react";
 
@@ -151,6 +151,9 @@ export default function NewMealPage() {
         >
           Save
         </button>
+        <Link to="/meals" className="mt-5 ml-5 text-pink-400">
+          Cancel
+        </Link>
       </Form>
     </div>
   );
