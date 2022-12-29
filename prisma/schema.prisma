@@ -43,9 +43,9 @@ model Note {
 
 model Restaurant {
   id    String @id @default(cuid())
-  name  String
+  name  String @unique
 
-  cuisine RestaurantCuisineMapper[]
+  cuisines RestaurantCuisineMapper[]
   meals   Meal[]
 }
 

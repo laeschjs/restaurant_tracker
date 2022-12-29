@@ -2,7 +2,8 @@ import { Form, useLoaderData } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
 import { useState } from "react";
 
-import { getRestaurants, createMeal } from "~/models/restaurant.server";
+import { getRestaurants } from "~/models/restaurant.server";
+import { createMeal } from "~/models/meal.server";
 import { requireUserId } from "~/session.server";
 
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
@@ -28,7 +29,7 @@ export async function action({ request }: ActionArgs) {
     userId,
   });
 
-  return redirect("/restaurants");
+  return redirect("/meals");
 }
 
 export default function NewMealPage() {

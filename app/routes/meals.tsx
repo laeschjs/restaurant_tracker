@@ -5,7 +5,7 @@ import { Disclosure } from "@headlessui/react";
 
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
-import { getMeals } from "~/models/restaurant.server";
+import { getMeals } from "~/models/meal.server";
 
 export async function loader({ request }: LoaderArgs) {
   const userId = await requireUserId(request);
