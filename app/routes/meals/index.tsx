@@ -3,7 +3,8 @@ import { useUser } from "~/utils";
 
 export default function AddMealButton() {
   const user = useUser();
-  const isAdmin = user.email === "test@test.com";
+  const isAdmin =
+    user.email === "test@test.com" || user.email === "joshua.laesch@gmail.com";
 
   return (
     <div className="mx-auto flex grid max-w-lg grid-flow-col justify-items-center">
