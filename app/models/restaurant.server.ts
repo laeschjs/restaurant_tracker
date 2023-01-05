@@ -5,6 +5,25 @@ export function getRestaurants() {
   return prisma.restaurant.findMany();
 }
 
-export function createRestaurant({ name }: Pick<Restaurant, "name">) {
-  return prisma.restaurant.create({ data: { name } });
+export async function createRestaurant({
+  name,
+  cuisines,
+}: {
+  name: string;
+  cuisines: FormDataEntryValue[];
+}) {
+  const restaurant = await prisma.restaurant.create({ data: { name } });
+  for (const cuisineName of cuisines) {
+    const cuisine = await prisma.cuisine.findUnique({
+      where: { name: `${cuisineName}` },
+    });
+    if (cuisine) {
+      await prisma.restaurantCuisineMapper.create({
+        data: {
+          restaurantId: restaurant.id,
+          cuisineId: cuisine.id,
+        },
+      });
+    }
+  }
 }

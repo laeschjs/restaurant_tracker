@@ -88,7 +88,7 @@ async function seed() {
     },
     {
       name: "Cracker Barrel",
-      cuisine: ["American, Brunch", "Sit-down"],
+      cuisine: ["American", "Brunch", "Sit-down"],
       meals: [],
     },
     {
