@@ -34,13 +34,10 @@ export async function action({ request }: ActionArgs) {
 
 export default function NewMealPage() {
   const data = useLoaderData<typeof loader>();
-  const restaurants = data.restaurants.slice();
-  restaurants.push({ id: "add_new", name: "Add New" });
-  const [isAddingNew, setIsAddingNew] = useState(false);
-
   /*
     - The below link for reloadDocument also has a section on animating. Seems dumb I have to build it from
       scratch but would make it nice. Save it for a follow up
+      EDIT maybe can just find existing react components like I did for react-select
   */
   return (
     <div className="mx-auto flex max-w-lg">
@@ -56,15 +53,8 @@ export default function NewMealPage() {
           <select
             name="new_restaurant"
             className="col-span-3 rounded-md border-2 border-sky-500 px-3 leading-loose"
-            onChange={(e) => {
-              if (e.target.value === "add_new") {
-                setIsAddingNew(true);
-              } else {
-                setIsAddingNew(false);
-              }
-            }}
           >
-            {restaurants.map((restaurant) => {
+            {data.restaurants.map((restaurant) => {
               return (
                 <option key={restaurant.id} value={restaurant.id}>
                   {restaurant.name}
@@ -73,15 +63,6 @@ export default function NewMealPage() {
             })}
           </select>
         </label>
-        {isAddingNew && (
-          <label className="my-3 flex grid grid-cols-4 items-center gap-1">
-            <span className="col-span-1">New Restaurant: </span>
-            <input
-              name="new_restaurant_user_input"
-              className="col-span-3 rounded-md border-2 border-sky-500 px-3 leading-loose"
-            />
-          </label>
-        )}
         <label className="my-3 flex grid grid-cols-4 items-center gap-1">
           <span className="col-span-1">Dish: </span>
           <input
