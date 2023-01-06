@@ -17,7 +17,7 @@ export async function action({ request }: ActionArgs) {
 
 export default function AdminPage() {
   return (
-    <div className="mx-auto flex max-w-lg">
+    <div className="mx-auto mt-5 flex max-w-lg">
       <Form
         method="post"
         className="w-full rounded-md bg-white p-5 shadow-lg"

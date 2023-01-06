@@ -40,7 +40,7 @@ export default function NewMealPage() {
       EDIT maybe can just find existing react components like I did for react-select
   */
   return (
-    <div className="mx-auto flex max-w-lg">
+    <div className="mx-auto mt-5 flex max-w-lg">
       <Form
         id="new_restaurant"
         method="post"
