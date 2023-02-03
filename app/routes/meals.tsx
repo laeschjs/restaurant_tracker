@@ -33,7 +33,7 @@ export default function RestaurantsPage() {
           </button>
         </Form>
       </header>
-      <main className="grid h-full grid-cols-4 bg-gray-100">
+      <main className="h-full grid-cols-4 bg-gray-100 sm:grid">
         <div className="col-span-1 border-r border-black">
           <NavLink
             to="new"
@@ -75,7 +75,7 @@ export default function RestaurantsPage() {
             return (
               <li
                 key={meal.id}
-                className="my-5 mx-auto max-w-lg rounded-md bg-white shadow-lg"
+                className="my-5 mx-auto max-w-2xl rounded-md bg-white shadow-lg"
               >
                 <Disclosure>
                   {({ open }) => (
