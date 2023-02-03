@@ -2,17 +2,23 @@ import { prisma } from "~/db.server";
 import type { Restaurant } from "@prisma/client";
 
 export function getRestaurants() {
-  return prisma.restaurant.findMany();
+  return prisma.restaurant.findMany({
+    include: { cuisines: { include: { cuisine: true } } },
+  });
 }
 
-export async function createRestaurant({
+export async function upsertRestaurant({
   name,
   cuisines,
 }: {
   name: string;
   cuisines: FormDataEntryValue[];
 }) {
-  const restaurant = await prisma.restaurant.create({ data: { name } });
+  const restaurant = await prisma.restaurant.upsert({
+    where: { name },
+    create: { name },
+    update: { name },
+  });
   for (const cuisineName of cuisines) {
     const cuisine = await prisma.cuisine.findUnique({
       where: { name: `${cuisineName}` },

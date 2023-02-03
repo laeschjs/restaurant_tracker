@@ -1,6 +1,5 @@
 import { Form, useLoaderData, Link } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
-import { useState } from "react";
 
 import { getRestaurants } from "~/models/restaurant.server";
 import { createMeal } from "~/models/meal.server";
