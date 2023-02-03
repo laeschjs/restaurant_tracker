@@ -16,6 +16,8 @@ export async function loader({ request }: LoaderArgs) {
 export default function RestaurantsPage() {
   const data = useLoaderData<typeof loader>();
   const user = useUser();
+  const isAdmin =
+    user.email === "test@test.com" || user.email === "joshua.laesch@gmail.com";
 
   return (
     <div className="flex h-full min-h-screen flex-col">
@@ -31,13 +33,50 @@ export default function RestaurantsPage() {
           </button>
         </Form>
       </header>
-      <main className="h-full bg-white">
-        <Outlet />
-        <ol className="mx-auto max-w-lg">
+      <main className="grid h-full grid-cols-4 bg-gray-100">
+        <div className="col-span-1 border-r border-black">
+          <NavLink
+            to="new"
+            className={({ isActive }) =>
+              `block border-b border-black p-4 text-xl hover:bg-purple-200 ${
+                isActive ? "bg-pink-400 text-blue-100 hover:bg-pink-400" : ""
+              }`
+            }
+          >
+            + Add Meal
+          </NavLink>
+          <NavLink
+            to="new_restaurant"
+            className={({ isActive }) =>
+              `block border-b border-black p-4 text-xl hover:bg-purple-200 ${
+                isActive ? "bg-pink-400 text-blue-100 hover:bg-pink-400" : ""
+              }`
+            }
+          >
+            + Add Restaurant
+          </NavLink>
+          {isAdmin && (
+            <NavLink
+              to="admin"
+              className={({ isActive }) =>
+                `block border-b border-black p-4 text-xl hover:bg-purple-200 ${
+                  isActive ? "bg-pink-400 text-blue-100 hover:bg-pink-400" : ""
+                }`
+              }
+            >
+              Admin View
+            </NavLink>
+          )}
+        </div>
+        <ol className="col-span-3">
+          <Outlet />
           {data.mealListItems.map((meal) => {
             const eatenAt = new Date(meal.eatenAt);
             return (
-              <li key={meal.id} className="my-5 rounded-md bg-white shadow-lg">
+              <li
+                key={meal.id}
+                className="my-5 mx-auto max-w-lg rounded-md bg-white shadow-lg"
+              >
                 <Disclosure>
                   {({ open }) => (
                     <>

@@ -17,13 +17,13 @@ export async function action({ request }: ActionArgs) {
 
 export default function AdminPage() {
   return (
-    <div className="mx-auto flex max-w-lg">
+    <div className="mx-auto mt-5 flex max-w-lg">
       <Form
         method="post"
         className="w-full rounded-md bg-white p-5 shadow-lg"
         reloadDocument
       >
-        <label className="grid-cols;-4 my-3 flex grid items-center gap-1">
+        <label className="my-3 flex grid grid-cols-4 items-center gap-1">
           <span className="col-span-1">Cuisine: </span>
           <input
             name="name"
