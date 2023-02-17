@@ -1,16 +1,35 @@
 import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  NavLink,
+  Outlet,
+  useLoaderData,
+  useNavigate,
+} from "@remix-run/react";
 import { Disclosure } from "@headlessui/react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFilter } from "@fortawesome/free-solid-svg-icons";
+import Select from "react-select";
 
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
 import { getMeals } from "~/models/meal.server";
+import { getCuisines } from "~/models/cuisine.server";
 
 export async function loader({ request }: LoaderArgs) {
+  const urlSearch = new URL(request.url);
+  const cuisineId = urlSearch.searchParams.get("filter");
   const userId = await requireUserId(request);
-  const mealListItems = await getMeals({ userId });
-  return json({ mealListItems });
+  const mealListItems = await getMeals({ userId, cuisineId });
+  const cuisines = await getCuisines();
+  return json({
+    mealListItems,
+    cuisines: cuisines.map((c) => {
+      return { label: c.name, value: c.id };
+    }),
+  });
 }
 
 export default function RestaurantsPage() {
@@ -18,6 +37,7 @@ export default function RestaurantsPage() {
   const user = useUser();
   const isAdmin =
     user.email === "test@test.com" || user.email === "joshua.laesch@gmail.com";
+  const navigate = useNavigate();
 
   return (
     <div className="flex h-full min-h-screen flex-col">
@@ -70,6 +90,23 @@ export default function RestaurantsPage() {
         </div>
         <ol className="col-span-3">
           <Outlet />
+          <div className="my-5 mx-auto max-w-2xl">
+            <FontAwesomeIcon icon={faFilter} size="2xl" className="mr-3" />
+            <Select
+              name="filter"
+              options={data.cuisines}
+              className="inline-block"
+              placeholder="Cuisines"
+              isClearable
+              onChange={(e) => {
+                if (e) {
+                  navigate("?filter=" + e.value);
+                } else {
+                  navigate("");
+                }
+              }}
+            />
+          </div>
           {data.mealListItems.map((meal) => {
             const eatenAt = new Date(meal.eatenAt);
             return (
