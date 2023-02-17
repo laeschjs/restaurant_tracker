@@ -1,4 +1,4 @@
-# restaurant_tracker
+# restaurant-tracker
 
 ## Remix Indie Stack
 
@@ -120,8 +120,8 @@ Prior to your first deployment, you'll need to do a few things:
 - Create a persistent volume for the sqlite database for both your staging and production environments. Run the following:
 
   ```sh
-  fly volumes create data --size 1 --app restaurant_tracker-c90f
-  fly volumes create data --size 1 --app restaurant_tracker-c90f-staging
+  fly volumes create data --size 1 --app restaurant-tracker-c90f
+  fly volumes create data --size 1 --app restaurant-tracker-c90f-staging
   ```
 
 Now that everything is set up you can commit and push your changes to your repo. Every commit to your `main` branch will trigger a deployment to your production environment, and every commit to your `dev` branch will trigger a deployment to your staging environment.
