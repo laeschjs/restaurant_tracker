@@ -28,7 +28,7 @@ export async function action({ request }: ActionArgs) {
     userId,
   });
 
-  return redirect("/meals");
+  return redirect("/app/meals");
 }
 
 export default function NewMealPage() {

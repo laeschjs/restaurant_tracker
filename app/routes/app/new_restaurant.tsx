@@ -41,7 +41,7 @@ export async function action({ request }: ActionArgs) {
     cuisines: formData.getAll("cuisines"),
   });
 
-  return redirect("/meals");
+  return redirect("/app/meals");
 }
 
 function makeOptions(obj: IRestaurantOrCuisine): ISelectOption {

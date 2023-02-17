@@ -12,7 +12,7 @@ export async function action({ request }: ActionArgs) {
     name: `${formData.get("name")}`,
   });
 
-  return redirect("/meals");
+  return redirect("/app/meals");
 }
 
 export default function AdminPage() {
