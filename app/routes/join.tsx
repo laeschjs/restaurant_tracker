@@ -18,7 +18,7 @@ export async function action({ request }: ActionArgs) {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
-  const redirectTo = safeRedirect(formData.get("redirectTo"), "/meals");
+  const redirectTo = safeRedirect(formData.get("redirectTo"), "/app/meals");
 
   if (!validateEmail(email)) {
     return json(
@@ -72,7 +72,7 @@ export const meta: MetaFunction = () => {
 
 export default function Join() {
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? "/meals";
+  const redirectTo = searchParams.get("redirectTo") ?? "/app/meals";
   const actionData = useActionData<typeof action>();
   const emailRef = React.useRef<HTMLInputElement>(null);
   const passwordRef = React.useRef<HTMLInputElement>(null);

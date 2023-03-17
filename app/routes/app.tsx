@@ -56,24 +56,44 @@ export default function RestaurantsPage() {
       <main className="h-full grid-cols-4 bg-gray-100 sm:grid">
         <div className="col-span-1 border-r border-black">
           <NavLink
-            to="new"
+            to="/app/meals"
             className={({ isActive }) =>
               `block border-b border-black p-4 text-xl hover:bg-purple-200 ${
                 isActive ? "bg-pink-400 text-blue-100 hover:bg-pink-400" : ""
               }`
             }
           >
-            + Add Meal
+            View Meals
           </NavLink>
           <NavLink
-            to="new_restaurant"
+            to="/app/new_meal"
             className={({ isActive }) =>
               `block border-b border-black p-4 text-xl hover:bg-purple-200 ${
                 isActive ? "bg-pink-400 text-blue-100 hover:bg-pink-400" : ""
               }`
             }
           >
-            + Add Restaurant
+            Add Meal
+          </NavLink>
+          <NavLink
+            to="/app/new_restaurant"
+            className={({ isActive }) =>
+              `block border-b border-black p-4 text-xl hover:bg-purple-200 ${
+                isActive ? "bg-pink-400 text-blue-100 hover:bg-pink-400" : ""
+              }`
+            }
+          >
+            Add Restaurant
+          </NavLink>
+          <NavLink
+            to="/app/friends"
+            className={({ isActive }) =>
+              `block border-b border-black p-4 text-xl hover:bg-purple-200 ${
+                isActive ? "bg-pink-400 text-blue-100 hover:bg-pink-400" : ""
+              }`
+            }
+          >
+            Friends
           </NavLink>
           {isAdmin && (
             <NavLink
@@ -90,65 +110,6 @@ export default function RestaurantsPage() {
         </div>
         <ol className="col-span-3">
           <Outlet />
-          <div className="my-5 mx-auto max-w-2xl">
-            <FontAwesomeIcon icon={faFilter} size="2xl" className="mr-3" />
-            <Select
-              name="filter"
-              options={data.cuisines}
-              className="inline-block"
-              placeholder="Cuisines"
-              isClearable
-              onChange={(e) => {
-                if (e) {
-                  navigate("?filter=" + e.value);
-                } else {
-                  navigate("");
-                }
-              }}
-            />
-          </div>
-          {data.mealListItems.map((meal) => {
-            const eatenAt = new Date(meal.eatenAt);
-            return (
-              <li
-                key={meal.id}
-                className="my-5 mx-auto max-w-2xl rounded-md bg-white shadow-lg"
-              >
-                <Disclosure>
-                  {({ open }) => (
-                    <>
-                      <Disclosure.Button className="flex w-full justify-between rounded-md bg-sky-100 px-4 py-2 text-left font-medium text-sky-800 hover:bg-sky-200">
-                        <span>{meal.restaurant.name}</span>
-                        <span>{eatenAt.toLocaleDateString()}</span>
-                      </Disclosure.Button>
-                      <Disclosure.Panel className="px-4 pt-4 pb-2 text-gray-500">
-                        <div className="grid grid-cols-4">
-                          <div className="col-span-1 mt-1">Dish:</div>
-                          <div className="col-span-3 mt-1">{meal.dish}</div>
-                          <div className="col-span-1 mt-1">Notes:</div>
-                          <div className="col-span-3 mt-1">{meal.notes}</div>
-                          <div className="col-span-1 mt-1">Rating:</div>
-                          <div className="col-span-3 mt-1">
-                            {meal.rating}⭐️
-                          </div>
-                          <div className="col-span-1 mt-1">Cost:</div>
-                          <div className="col-span-3 mt-1">${meal.cost}</div>
-                          <div className="col-span-1 mt-1">Reservation:</div>
-                          <div className="col-span-3 mt-1">
-                            {meal.reservation ? "Yes" : "No"}
-                          </div>
-                          <div className="col-span-1 mt-1">Wait Time:</div>
-                          <div className="col-span-3 mt-1">
-                            {meal.queueTime} minutes
-                          </div>
-                        </div>
-                      </Disclosure.Panel>
-                    </>
-                  )}
-                </Disclosure>
-              </li>
-            );
-          })}
         </ol>
       </main>
     </div>
