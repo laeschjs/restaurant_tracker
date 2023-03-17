@@ -85,6 +85,16 @@ export default function RestaurantsPage() {
           >
             Add Restaurant
           </NavLink>
+          <NavLink
+            to="/app/friends"
+            className={({ isActive }) =>
+              `block border-b border-black p-4 text-xl hover:bg-purple-200 ${
+                isActive ? "bg-pink-400 text-blue-100 hover:bg-pink-400" : ""
+              }`
+            }
+          >
+            Friends
+          </NavLink>
           {isAdmin && (
             <NavLink
               to="admin"
