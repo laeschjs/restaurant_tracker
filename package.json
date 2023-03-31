@@ -29,11 +29,14 @@
     "/public/build"
   ],
   "dependencies": {
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
     "@fortawesome/fontawesome-svg-core": "^6.2.1",
     "@fortawesome/free-regular-svg-icons": "^6.2.1",
     "@fortawesome/free-solid-svg-icons": "^6.2.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@headlessui/react": "^1.7.7",
+    "@mui/material": "^5.11.13",
     "@prisma/client": "^4.5.0",
     "@remix-run/node": "^1.7.5",
     "@remix-run/react": "^1.7.5",
