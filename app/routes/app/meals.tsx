@@ -12,6 +12,11 @@ import { Disclosure } from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import Select from "react-select";
+import Switch from "@mui/material/Switch";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import { useState } from "react";
+import { useLocation } from "react-router-dom";
+import type { NavigateFunction } from "react-router-dom";
 
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
@@ -21,10 +26,21 @@ import { getCuisines } from "~/models/cuisine.server";
 export async function loader({ request }: LoaderArgs) {
   const urlSearch = new URL(request.url);
   const cuisineId = urlSearch.searchParams.get("filter");
+  const showFriends = urlSearch.searchParams.get("showFriends");
   const userId = await requireUserId(request);
-  const mealListItems = await getMeals({ userId, cuisineId });
+  const mealListItems = await getMeals({
+    userId,
+    cuisineId,
+    showFriends: Boolean(showFriends),
+  });
   const cuisines = await getCuisines();
+  const startingCuisine = cuisines.find((c) => c.id === cuisineId);
+  const startingCuisineOption = startingCuisine
+    ? { label: startingCuisine.name, value: startingCuisine.id }
+    : undefined;
   return json({
+    startingCuisine: startingCuisineOption,
+    showFriends,
     mealListItems,
     cuisines: cuisines.map((c) => {
       return { label: c.name, value: c.id };
@@ -32,12 +48,47 @@ export async function loader({ request }: LoaderArgs) {
   });
 }
 
+function customNavigate(
+  key: string,
+  value: string | boolean,
+  searchParams: string,
+  navigate: NavigateFunction
+) {
+  if (searchParams) {
+    let searchParts = searchParams.split("&");
+    searchParts[0] = searchParts[0].replace("?", "");
+    let keyInParams = false;
+    searchParts = searchParts.reduce((result: Array<string>, part: string) => {
+      if (!part.includes(key + "=")) {
+        return result.concat([part]);
+      } else {
+        keyInParams = true;
+        if (value) {
+          result.push(key + "=" + value);
+        }
+        return result;
+      }
+    }, []);
+    if (!keyInParams) searchParts.push(key + "=" + value);
+
+    navigate("?" + searchParts.join("&"));
+  } else if (value) {
+    navigate("?" + key + "=" + value);
+  } else {
+    navigate("");
+  }
+}
+
 export default function RestaurantsPage() {
   const data = useLoaderData<typeof loader>();
   const user = useUser();
   const isAdmin =
     user.email === "test@test.com" || user.email === "joshua.laesch@gmail.com";
+  const [switchCheck, setChecked] = useState<boolean>(
+    Boolean(data.showFriends)
+  );
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <>
@@ -47,16 +98,32 @@ export default function RestaurantsPage() {
         <Select
           name="filter"
           options={data.cuisines}
-          className="inline-block"
+          className="mr-3 inline-block"
           placeholder="Cuisines"
           isClearable
+          defaultValue={data.startingCuisine}
           onChange={(e) => {
-            if (e) {
-              navigate("?filter=" + e.value);
-            } else {
-              navigate("");
-            }
+            customNavigate("filter", e?.value || "", location.search, navigate);
           }}
+        />
+        <FormControlLabel
+          labelPlacement="start"
+          control={
+            <Switch
+              color="secondary"
+              checked={switchCheck}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setChecked(e.target.checked);
+                customNavigate(
+                  "showFriends",
+                  e.target.checked,
+                  location.search,
+                  navigate
+                );
+              }}
+            />
+          }
+          label="Show Friends Meals"
         />
       </div>
       {data.mealListItems.map((meal) => {

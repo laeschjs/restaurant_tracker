@@ -4,9 +4,11 @@ import { prisma } from "~/db.server";
 export async function getMeals({
   userId,
   cuisineId,
+  showFriends,
 }: {
   userId: User["id"];
   cuisineId: Cuisine["id"] | null;
+  showFriends: boolean;
 }) {
   const where: Prisma.MealWhereInput = {
     userId: userId,
@@ -23,6 +25,20 @@ export async function getMeals({
     const restaurantIds = restaurantPrismaIds.map((rel) => rel.restaurantId);
     where["restaurantId"] = {
       in: restaurantIds,
+    };
+  }
+  if (showFriends) {
+    const friendIds = await prisma.friendMapper.findMany({
+      where: {
+        selfId: userId,
+      },
+      select: {
+        friendId: true,
+      },
+    });
+    const allUserIds = friendIds.map((rel) => rel.friendId).concat([userId]);
+    where["userId"] = {
+      in: allUserIds,
     };
   }
   return prisma.meal.findMany({

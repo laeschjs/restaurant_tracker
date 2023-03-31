@@ -15,17 +15,14 @@ import Select from "react-select";
 
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
-import { getMeals } from "~/models/meal.server";
 import { getCuisines } from "~/models/cuisine.server";
 
 export async function loader({ request }: LoaderArgs) {
   const urlSearch = new URL(request.url);
   const cuisineId = urlSearch.searchParams.get("filter");
   const userId = await requireUserId(request);
-  const mealListItems = await getMeals({ userId, cuisineId });
   const cuisines = await getCuisines();
   return json({
-    mealListItems,
     cuisines: cuisines.map((c) => {
       return { label: c.name, value: c.id };
     }),
