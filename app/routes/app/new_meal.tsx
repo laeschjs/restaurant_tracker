@@ -1,5 +1,8 @@
 import { Form, useLoaderData, Link } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { useState } from "react";
+import dayjs, { Dayjs } from "dayjs";
 
 import { getRestaurants } from "~/models/restaurant.server";
 import { createMeal } from "~/models/meal.server";
@@ -26,6 +29,7 @@ export async function action({ request }: ActionArgs) {
     queueTime: parseInt(`${formData.get("queueTime")}`) || 0,
     restaurantId: `${formData.get("new_restaurant")}`,
     userId,
+    eatenAt: new Date(`${formData.get("eatenAt")}`),
   });
 
   return redirect("/app/meals");
@@ -33,6 +37,7 @@ export async function action({ request }: ActionArgs) {
 
 export default function NewMealPage() {
   const data = useLoaderData<typeof loader>();
+  const [eatenAt, setEatenAt] = useState<Dayjs | null>(dayjs());
   /*
     - The below link for reloadDocument also has a section on animating. Seems dumb I have to build it from
       scratch but would make it nice. Save it for a follow up
@@ -123,6 +128,21 @@ export default function NewMealPage() {
           <input
             name="queueTime"
             className="col-span-3 rounded-md border-2 border-sky-500 px-3 leading-loose"
+          />
+        </label>
+        <label className="my-3 flex grid grid-cols-4 items-center gap-1">
+          <span className="col-span-1">DateTime: </span>
+          <DateTimePicker
+            className="col-span-3"
+            value={eatenAt}
+            onChange={(newValue) => setEatenAt(newValue)}
+            disableFuture
+          />
+          <input
+            className="hidden"
+            name="eatenAt"
+            value={eatenAt?.format("L LTS")}
+            onChange={() => ""}
           />
         </label>
         <button

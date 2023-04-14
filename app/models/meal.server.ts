@@ -57,7 +57,8 @@ export function createMeal({
   queueTime,
   restaurantId,
   userId,
-}: Omit<Meal, "id" | "eatenAt">) {
+  eatenAt,
+}: Omit<Meal, "id">) {
   return prisma.meal.create({
     data: {
       dish,
@@ -66,6 +67,7 @@ export function createMeal({
       rating,
       reservation,
       queueTime,
+      eatenAt,
       restaurant: {
         connect: {
           id: restaurantId,
