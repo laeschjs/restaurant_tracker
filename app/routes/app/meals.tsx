@@ -17,6 +17,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import type { NavigateFunction } from "react-router-dom";
+import dayjs from "dayjs";
 
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
@@ -138,7 +139,7 @@ export default function RestaurantsPage() {
                 <>
                   <Disclosure.Button className="flex w-full justify-between rounded-md bg-sky-100 px-4 py-2 text-left font-medium text-sky-800 hover:bg-sky-200">
                     <span>{meal.restaurant.name}</span>
-                    <span>{eatenAt.toLocaleDateString()}</span>
+                    <span>{dayjs(eatenAt).format("L LT")}</span>
                   </Disclosure.Button>
                   <Disclosure.Panel className="px-4 pt-4 pb-2 text-gray-500">
                     <div className="grid grid-cols-4">
