@@ -3,10 +3,12 @@ import { json, redirect } from "@remix-run/node";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
+import Select from "react-select";
 
 import { getRestaurants } from "~/models/restaurant.server";
 import { createMeal } from "~/models/meal.server";
 import { requireUserId } from "~/session.server";
+import { makeOptions, ISelectOption } from "~/utils";
 
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 
@@ -38,6 +40,8 @@ export async function action({ request }: ActionArgs) {
 export default function NewMealPage() {
   const data = useLoaderData<typeof loader>();
   const [eatenAt, setEatenAt] = useState<Dayjs | null>(dayjs());
+  const [selectedRestaurant, setSelectedRestaurant] =
+    useState<ISelectOption | null>(null);
   /*
     - The below link for reloadDocument also has a section on animating. Seems dumb I have to build it from
       scratch but would make it nice. Save it for a follow up
@@ -54,18 +58,14 @@ export default function NewMealPage() {
       >
         <label className="my-3 flex grid grid-cols-4 items-center gap-1">
           <span className="col-span-1">Restaurant: </span>
-          <select
+          <Select
             name="new_restaurant"
-            className="col-span-3 rounded-md border-2 border-sky-500 px-3 leading-loose"
-          >
-            {data.restaurants.map((restaurant) => {
-              return (
-                <option key={restaurant.id} value={restaurant.id}>
-                  {restaurant.name}
-                </option>
-              );
-            })}
-          </select>
+            value={selectedRestaurant}
+            options={data.restaurants.map(makeOptions("id"))}
+            onChange={(restaurant) => setSelectedRestaurant(restaurant)}
+            isSearchable
+            className="col-span-3 rounded-md border-2 border-sky-500 leading-loose"
+          />
         </label>
         <label className="my-3 flex grid grid-cols-4 items-center gap-1">
           <span className="col-span-1">Dish: </span>

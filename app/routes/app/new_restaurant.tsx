@@ -6,26 +6,10 @@ import { useState, useEffect, Dispatch, SetStateAction } from "react";
 
 import { upsertRestaurant, getRestaurants } from "~/models/restaurant.server";
 import { getCuisines } from "~/models/cuisine.server";
+import { ISelectOption, makeOptions } from "~/utils";
 
-import type { RestaurantCuisineMapper, Prisma } from "@prisma/client";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
-
-type RestaurantCuisineMapperWithRels =
-  Prisma.RestaurantCuisineMapperGetPayload<{
-    include: { cuisine: true };
-  }>;
-
-interface IRestaurantOrCuisine {
-  name: string;
-  cuisines?: RestaurantCuisineMapperWithRels[];
-  restaurants?: RestaurantCuisineMapperWithRels[];
-}
-
-interface ISelectOption {
-  label: string;
-  value: string;
-  obj: IRestaurantOrCuisine;
-}
+import type { Cuisine } from "@prisma/client";
 
 export async function loader({ request }: LoaderArgs) {
   const cuisines = await getCuisines();
@@ -44,22 +28,21 @@ export async function action({ request }: ActionArgs) {
   return redirect("/app/meals");
 }
 
-function makeOptions(obj: IRestaurantOrCuisine): ISelectOption {
-  return { label: obj.name, value: obj.name, obj: obj };
-}
-
 async function setRestaurantCuisines(
-  option: ISelectOption,
-  action: Dispatch<SetStateAction<ISelectOption[]>>
+  restaurant: ISelectOption | null,
+  setSelectedCuisines: Dispatch<SetStateAction<ISelectOption[]>>
 ) {
-  const cuisines = option.obj.cuisines?.map((mapper) => mapper.cuisine) || [];
-  action(cuisines.map(makeOptions));
+  let cuisines: Cuisine[] = [];
+  if (restaurant) {
+    cuisines = restaurant.obj.cuisines?.map((mapper) => mapper.cuisine) || [];
+  }
+  setSelectedCuisines(cuisines.map(makeOptions()));
 }
 
 export default function NewRestaurantPage() {
   const data = useLoaderData<typeof loader>();
-  const cuisineOptions = data.cuisines.map(makeOptions);
-  const restaurantOptions = data.restaurants.map(makeOptions);
+  const cuisineOptions = data.cuisines.map(makeOptions());
+  const restaurantOptions = data.restaurants.map(makeOptions());
   const [selectedCusines, setSelectedCuisines] = useState<ISelectOption[]>([]);
 
   return (
@@ -75,9 +58,10 @@ export default function NewRestaurantPage() {
         <CreatableSelect
           name="restaurant_name"
           options={restaurantOptions}
-          onChange={(e) =>
-            setRestaurantCuisines(e as ISelectOption, setSelectedCuisines)
+          onChange={(restaurant) =>
+            setRestaurantCuisines(restaurant, setSelectedCuisines)
           }
+          isClearable
           className="col-span-3"
         />
         <span className="mt-5 mb-1 inline-block">Cuisines:</span>
@@ -85,9 +69,7 @@ export default function NewRestaurantPage() {
           name="cuisines"
           value={selectedCusines}
           options={cuisineOptions}
-          onChange={(selected) =>
-            setSelectedCuisines(selected as ISelectOption[])
-          }
+          onChange={(selected) => setSelectedCuisines(selected.slice())}
           isMulti
           className="col-span-3"
         />
