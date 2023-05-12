@@ -23,7 +23,7 @@ export async function action({ request }: ActionArgs) {
     notes: `${formData.get("notes")}`,
     rating: parseInt(`${formData.get("rating")}`),
     cost: parseFloat(`${formData.get("cost")}`),
-    reservation: formData.get("reservation") === "true",
+    reservation: formData.get("reservation") === "on",
     queueTime: parseInt(`${formData.get("queueTime")}`) || 0,
     restaurantId: `${formData.get("new_restaurant")}`,
     userId,

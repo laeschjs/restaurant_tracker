@@ -1,4 +1,3 @@
-import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import {
   Form,
@@ -15,14 +14,23 @@ import Select from "react-select";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
-import type { NavigateFunction } from "react-router-dom";
+import { useLocation, useOutletContext } from "react-router-dom";
 import dayjs from "dayjs";
+
+import type { NavigateFunction } from "react-router-dom";
+import type { Prisma } from "@prisma/client";
+import type { LoaderArgs } from "@remix-run/node";
 
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
 import { getMeals } from "~/models/meal.server";
 import { getCuisines } from "~/models/cuisine.server";
+
+type ContextType = {
+  meal: Prisma.MealGetPayload<{
+    include: { restaurant: true };
+  }>;
+};
 
 export async function loader({ request }: LoaderArgs) {
   const urlSearch = new URL(request.url);
@@ -80,6 +88,10 @@ function customNavigate(
   }
 }
 
+export function useMealFromContext() {
+  return useOutletContext<ContextType>();
+}
+
 export default function RestaurantsPage() {
   const data = useLoaderData<typeof loader>();
   const user = useUser();
@@ -93,7 +105,6 @@ export default function RestaurantsPage() {
 
   return (
     <>
-      <Outlet />
       <div className="my-5 mx-auto max-w-2xl">
         <FontAwesomeIcon icon={faFilter} size="2xl" className="mr-3" />
         <Select
@@ -142,24 +153,7 @@ export default function RestaurantsPage() {
                     <span>{dayjs(eatenAt).format("L LT")}</span>
                   </Disclosure.Button>
                   <Disclosure.Panel className="px-4 pt-4 pb-2 text-gray-500">
-                    <div className="grid grid-cols-4">
-                      <div className="col-span-1 mt-1">Dish:</div>
-                      <div className="col-span-3 mt-1">{meal.dish}</div>
-                      <div className="col-span-1 mt-1">Notes:</div>
-                      <div className="col-span-3 mt-1">{meal.notes}</div>
-                      <div className="col-span-1 mt-1">Rating:</div>
-                      <div className="col-span-3 mt-1">{meal.rating}⭐️</div>
-                      <div className="col-span-1 mt-1">Cost:</div>
-                      <div className="col-span-3 mt-1">${meal.cost}</div>
-                      <div className="col-span-1 mt-1">Reservation:</div>
-                      <div className="col-span-3 mt-1">
-                        {meal.reservation ? "Yes" : "No"}
-                      </div>
-                      <div className="col-span-1 mt-1">Wait Time:</div>
-                      <div className="col-span-3 mt-1">
-                        {meal.queueTime} minutes
-                      </div>
-                    </div>
+                    <Outlet context={{ meal }} />
                   </Disclosure.Panel>
                 </>
               )}
