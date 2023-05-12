@@ -1,5 +1,6 @@
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
+import type { Prisma } from "@prisma/client";
 
 import type { User } from "~/models/user.server";
 
@@ -68,4 +69,34 @@ export function useUser(): User {
 
 export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
+}
+
+type RestaurantCuisineMapperWithRels =
+  Prisma.RestaurantCuisineMapperGetPayload<{
+    include: { cuisine: true };
+  }>;
+
+interface IRestaurantOrCuisine {
+  id: string;
+  name: string;
+  cuisines?: RestaurantCuisineMapperWithRels[];
+  restaurants?: RestaurantCuisineMapperWithRels[];
+}
+
+export interface ISelectOption {
+  label: string;
+  value: string;
+  obj: IRestaurantOrCuisine;
+}
+
+export function makeOptions(
+  valueKey?: string
+): (obj: IRestaurantOrCuisine) => ISelectOption {
+  return (obj: IRestaurantOrCuisine) => {
+    let value = obj.name;
+    if (valueKey === "id") {
+      value = obj.id;
+    }
+    return { label: obj.name, value, obj: obj };
+  };
 }

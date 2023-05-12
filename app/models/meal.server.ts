@@ -81,3 +81,41 @@ export function createMeal({
     },
   });
 }
+
+export function editMeal({
+  id,
+  dish,
+  notes,
+  cost,
+  rating,
+  reservation,
+  queueTime,
+  restaurantId,
+  userId,
+  eatenAt,
+}: Meal) {
+  return prisma.meal.update({
+    where: {
+      id,
+    },
+    data: {
+      dish,
+      notes,
+      cost,
+      rating,
+      reservation,
+      queueTime,
+      eatenAt,
+      restaurant: {
+        connect: {
+          id: restaurantId,
+        },
+      },
+      user: {
+        connect: {
+          id: userId,
+        },
+      },
+    },
+  });
+}
