@@ -2,14 +2,16 @@ import { Form, Link, useLoaderData } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
 import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
-import { useState, useEffect, Dispatch, SetStateAction } from "react";
+import { useState } from "react";
 
 import { upsertRestaurant, getRestaurants } from "~/models/restaurant.server";
 import { getCuisines } from "~/models/cuisine.server";
-import { ISelectOption, makeOptions } from "~/utils";
+import { makeOptions } from "~/utils";
 
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import type { Cuisine } from "@prisma/client";
+import type { Dispatch, SetStateAction } from "react";
+import type { ISelectOption } from "~/utils";
 
 export async function loader({ request }: LoaderArgs) {
   const cuisines = await getCuisines();

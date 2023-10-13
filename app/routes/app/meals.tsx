@@ -1,12 +1,5 @@
 import { json } from "@remix-run/node";
-import {
-  Form,
-  Link,
-  NavLink,
-  Outlet,
-  useLoaderData,
-  useNavigate,
-} from "@remix-run/react";
+import { Outlet, useLoaderData, useNavigate } from "@remix-run/react";
 import { Disclosure } from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
@@ -22,7 +15,6 @@ import type { Prisma } from "@prisma/client";
 import type { LoaderArgs } from "@remix-run/node";
 
 import { requireUserId } from "~/session.server";
-import { useUser } from "~/utils";
 import { getMeals } from "~/models/meal.server";
 import { getCuisines } from "~/models/cuisine.server";
 
@@ -94,9 +86,6 @@ export function useMealFromContext() {
 
 export default function RestaurantsPage() {
   const data = useLoaderData<typeof loader>();
-  const user = useUser();
-  const isAdmin =
-    user.email === "test@test.com" || user.email === "joshua.laesch@gmail.com";
   const [switchCheck, setChecked] = useState<boolean>(
     Boolean(data.showFriends)
   );

@@ -1,4 +1,4 @@
-import { Form, NavLink, Outlet, useNavigate } from "@remix-run/react";
+import { Form, NavLink, Outlet } from "@remix-run/react";
 
 import { useUser } from "~/utils";
 
@@ -6,7 +6,6 @@ export default function RestaurantsPage() {
   const user = useUser();
   const isAdmin =
     user.email === "test@test.com" || user.email === "joshua.laesch@gmail.com";
-  const navigate = useNavigate();
 
   return (
     <div className="flex h-full min-h-screen flex-col">

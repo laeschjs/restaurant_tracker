@@ -57,7 +57,7 @@ export default function FriendsPage() {
       <div className="mt-5">
         <div>Your Friends:</div>
         {data.friends.map((fr) => {
-          return <div>{fr.email}</div>;
+          return <div key={fr.email}>{fr.email}</div>;
         })}
       </div>
     </div>
