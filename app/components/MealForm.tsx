@@ -1,5 +1,5 @@
 import { useState } from "react";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { Form, Link } from "@remix-run/react";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import Select from "react-select";
@@ -8,10 +8,11 @@ import Rating from "@mui/material/Rating";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import { styled } from "@mui/system";
 import Switch from "@mui/material/Switch";
-
-import { makeOptions, ISelectOption } from "~/utils";
+import { makeOptions } from "~/utils";
 
 import type { Restaurant, Prisma } from "@prisma/client";
+import type { ISelectOption } from "~/utils";
+import type { Dayjs } from "dayjs";
 
 const InputAdornment = styled("div")`
   margin: 8px;
