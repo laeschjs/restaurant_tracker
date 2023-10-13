@@ -128,7 +128,7 @@ export default function MealForm({
           <input
             className="hidden"
             name="eatenAt"
-            value={eatenAt?.format("L LTS")}
+            value={eatenAt?.toISOString()}
             onChange={() => ""}
           />
         </label>
