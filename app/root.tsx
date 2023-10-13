@@ -1,4 +1,5 @@
 import type { LinksFunction, LoaderArgs, MetaFunction } from "@remix-run/node";
+import React from "react";
 import { json } from "@remix-run/node";
 import {
   Links,
@@ -8,6 +9,8 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import { withEmotionCache } from "@emotion/react";
+import { unstable_useEnhancedEffect as useEnhancedEffect } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
@@ -40,21 +43,62 @@ export async function loader({ request }: LoaderArgs) {
   });
 }
 
+interface DocumentProps {
+  children: React.ReactNode;
+  title?: string;
+}
+
+const Document = withEmotionCache(
+  ({ children, title }: DocumentProps, emotionCache) => {
+    const clientStyleData = React.useContext(
+      React.createContext({ reset: () => {} })
+    );
+
+    // Only executed on client
+    useEnhancedEffect(() => {
+      // re-link sheet container
+      emotionCache.sheet.container = document.head;
+      // re-inject tags
+      const tags = emotionCache.sheet.tags;
+      emotionCache.sheet.flush();
+      tags.forEach((tag) => {
+        // eslint-disable-next-line no-underscore-dangle
+        (emotionCache.sheet as any)._insertTag(tag);
+      });
+      // reset cache to reapply global styles
+      clientStyleData.reset();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    return (
+      <html lang="en" className="h-full">
+        <head>
+          <Meta />
+          <Links />
+          <meta
+            name="emotion-insertion-point"
+            content="emotion-insertion-point"
+          />
+        </head>
+        <body className="h-full">
+          {children}
+          <ScrollRestoration />
+          <Scripts />
+          <LiveReload />
+        </body>
+      </html>
+    );
+  }
+);
+
+// https://remix.run/api/conventions#default-export
+// https://remix.run/api/conventions#route-filenames
 export default function App() {
   return (
-    <html lang="en" className="h-full">
-      <head>
-        <Meta />
-        <Links />
-      </head>
-      <body className="h-full">
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <Outlet />
-        </LocalizationProvider>
-        <ScrollRestoration />
-        <Scripts />
-        <LiveReload />
-      </body>
-    </html>
+    <Document>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <Outlet />
+      </LocalizationProvider>
+    </Document>
   );
 }
