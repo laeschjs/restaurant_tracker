@@ -42,16 +42,16 @@ model Note {
 }
 
 model Restaurant {
-  id    String @id @default(cuid())
-  name  String @unique
+  id   String @id @default(cuid())
+  name String @unique
 
   cuisines RestaurantCuisineMapper[]
-  meals   Meal[]
+  meals    Meal[]
 }
 
 model Cuisine {
-  id    String @id @default(cuid())
-  name  String @unique
+  id   String @id @default(cuid())
+  name String @unique
 
   restaurants RestaurantCuisineMapper[]
 }
@@ -62,7 +62,7 @@ model RestaurantCuisineMapper {
 
   cuisine   Cuisine @relation(fields: [cuisineId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   cuisineId String
-  
+
   @@id([restaurantId, cuisineId])
 }
 
@@ -78,7 +78,7 @@ model FriendMapper {
 
 model Meal {
   id String @id @default(cuid())
-  
+
   eatenAt     DateTime @default(now())
   notes       String?
   dish        String
@@ -92,4 +92,19 @@ model Meal {
 
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   restaurantId String
+
+  extras MealExtra[]
+}
+
+model MealExtra {
+  id String @id @default(cuid())
+
+  type   String
+  name   String
+  notes  String?
+  rating Int
+  cost   Float
+
+  meal   Meal   @relation(fields: [mealId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  mealId String
 }

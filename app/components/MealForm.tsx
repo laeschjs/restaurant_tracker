@@ -8,9 +8,10 @@ import Rating from "@mui/material/Rating";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import { styled } from "@mui/system";
 import Switch from "@mui/material/Switch";
+import Grid from "@mui/material/Unstable_Grid2";
 import { makeOptions } from "~/utils";
 
-import type { Restaurant, Prisma } from "@prisma/client";
+import type { Restaurant, Meal, MealExtra } from "@prisma/client";
 import type { ISelectOption } from "~/utils";
 import type { Dayjs } from "dayjs";
 
@@ -23,9 +24,7 @@ const InputAdornment = styled("div")`
 
 interface MealFormProps {
   restaurants: Restaurant[];
-  meal?: Prisma.MealGetPayload<{
-    include: { restaurant: true };
-  }>;
+  meal?: Meal & { restaurant: Restaurant; extras: MealExtra[] };
   isNew?: boolean;
   cancelFunc?: () => void;
 }
@@ -45,6 +44,12 @@ export default function MealForm({
   const [eatenAt, setEatenAt] = useState<Dayjs | null>(startingEatenAt);
   const [selectedRestaurant, setSelectedRestaurant] =
     useState<ISelectOption | null>(startingRestaurant);
+  const [extras, setExtras] = useState<string[]>([]);
+  const extraOptions = [
+    { label: "Appetizer", value: "appetizer" },
+    { label: "Drink", value: "drink" },
+    { label: "Dessert", value: "dessert" },
+  ];
   /*
     - The below link for reloadDocument also has a section on animating. Seems dumb I have to build it from
       scratch but would make it nice. Save it for a follow up
@@ -134,21 +139,80 @@ export default function MealForm({
           />
         </label>
         <input className="hidden" name="mealId" value={meal?.id} />
+        {extras.map((_, index) => (
+          <div className="mt-3 border-t-2 border-gray-600" key={index}>
+            <label className="my-3 flex grid grid-cols-4 items-center gap-1">
+              <span className="col-span-1">Type: </span>
+              <Select
+                name={`extras[${index}][type]`}
+                options={extraOptions}
+                className="col-span-3"
+              />
+            </label>
+            <label className="my-3 flex grid grid-cols-4 items-center gap-1">
+              <span className="col-span-1">Name: </span>
+              <TextField
+                name={`extras[${index}][name]`}
+                className="col-span-3"
+              />
+            </label>
+            <label className="my-3 flex grid grid-cols-4 items-center gap-1">
+              <span className="col-span-1">Notes: </span>
+              <TextField
+                name={`extras[${index}][notes]`}
+                className="col-span-3"
+              />
+            </label>
+            <label className="my-3 flex grid grid-cols-4 items-center gap-1">
+              <span className="col-span-1">Rating: </span>
+              <Rating name={`extras[${index}][rating]`} max={10} />
+            </label>
+            <label className="my-3 flex grid grid-cols-4 items-center gap-1">
+              <span className="col-span-1">Cost: </span>
+              <OutlinedInput
+                name={`extras[${index}][cost]`}
+                className="col-span-3"
+                startAdornment={<InputAdornment>$</InputAdornment>}
+              />
+            </label>
+          </div>
+        ))}
         <button
-          type="submit"
-          className="mt-5 rounded bg-sky-500 py-2 px-4 text-white hover:bg-sky-600 focus:bg-sky-400"
+          className="mt-3 mb-5 block w-full rounded py-3 text-center text-green-400 hover:bg-green-400 hover:text-white"
+          onClick={(e) => {
+            e.preventDefault();
+            setExtras([...extras, "dummy"]);
+          }}
         >
-          Save
+          + Add an Extra +
         </button>
-        {cancelFunc ? (
-          <button className="ml-5 text-pink-400" onClick={() => cancelFunc()}>
-            Cancel
-          </button>
-        ) : (
-          <Link to="/app/meals" className="mt-5 ml-5 text-pink-400">
-            Cancel
-          </Link>
-        )}
+        <Grid container spacing={1}>
+          <Grid xs={6}>
+            <button
+              type="submit"
+              className="w-full rounded bg-sky-500 py-2 px-4 text-white hover:bg-sky-600 focus:bg-sky-400"
+            >
+              Save
+            </button>
+          </Grid>
+          <Grid xs={6} className="flex items-stretch">
+            {cancelFunc ? (
+              <button
+                className="flex w-full items-center justify-center rounded border-2 border-pink-400 text-pink-400 hover:bg-pink-400 hover:text-white"
+                onClick={() => cancelFunc()}
+              >
+                Cancel
+              </button>
+            ) : (
+              <Link
+                to="/app/meals"
+                className="inline-block flex w-full items-center justify-center rounded border-2 border-pink-400 text-center text-pink-400 hover:bg-pink-400 hover:text-white"
+              >
+                Cancel
+              </Link>
+            )}
+          </Grid>
+        </Grid>
       </Form>
     </div>
   );
