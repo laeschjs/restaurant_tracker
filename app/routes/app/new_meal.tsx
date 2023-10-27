@@ -1,5 +1,6 @@
 import { useLoaderData } from "@remix-run/react";
 import { json, redirect } from "@remix-run/node";
+import qs from "qs";
 
 import { getRestaurants } from "~/models/restaurant.server";
 import { createMeal } from "~/models/meal.server";
@@ -7,6 +8,7 @@ import { requireUserId } from "~/session.server";
 import MealForm from "~/components/MealForm";
 
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { MealExtraParam } from "~/models/meal.server";
 
 export async function loader({ request }: LoaderArgs) {
   const restaurants = await getRestaurants();
@@ -16,18 +18,20 @@ export async function loader({ request }: LoaderArgs) {
 export async function action({ request }: ActionArgs) {
   const userId = await requireUserId(request);
 
-  const formData = await request.formData();
+  const text = await request.text();
+  const values = qs.parse(text);
 
   await createMeal({
-    dish: `${formData.get("dish")}`,
-    notes: `${formData.get("notes")}`,
-    rating: parseInt(`${formData.get("rating")}`),
-    cost: parseFloat(`${formData.get("cost")}`),
-    reservation: formData.get("reservation") === "on",
-    queueTime: parseInt(`${formData.get("queueTime")}`) || 0,
-    restaurantId: `${formData.get("new_restaurant")}`,
+    dish: `${values.dish}`,
+    notes: `${values.notes}`,
+    rating: parseInt(`${values.rating}`),
+    cost: parseFloat(`${values.cost}`),
+    reservation: values.reservation === "on",
+    queueTime: parseInt(`${values.queueTime}`) || 0,
+    restaurantId: `${values.new_restaurant}`,
     userId,
-    eatenAt: new Date(`${formData.get("eatenAt")}`),
+    eatenAt: new Date(`${values.eatenAt}`),
+    extras: (values.extras || []) as unknown as MealExtraParam[],
   });
 
   return redirect("/app/meals");
