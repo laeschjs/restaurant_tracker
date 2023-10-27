@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { json, redirect } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 
 import { useMealFromContext } from "../meals";
 import { getRestaurants } from "~/models/restaurant.server";
@@ -9,6 +14,12 @@ import { requireUserId } from "~/session.server";
 import { editMeal } from "~/models/meal.server";
 
 import type { LoaderArgs, ActionArgs } from "@remix-run/node";
+
+enum MealExtraLabel {
+  appetizer = "Appetizer",
+  drink = "Drink",
+  dessert = "Dessert",
+}
 
 export async function loader({ request }: LoaderArgs) {
   const restaurants = await getRestaurants();
@@ -50,10 +61,8 @@ export default function Index() {
     );
   }
   return (
-    <div className="grid grid-cols-4">
-      <div className="col-span-1 mt-1">Dish:</div>
-      <div className="col-span-2 mt-1">{meal.dish}</div>
-      <div className="col-span-1 mt-1 text-end">
+    <>
+      <div className="mb-3 text-end">
         <button
           className="text-blue-500 underline"
           onClick={() => setEditMode(true)}
@@ -61,16 +70,52 @@ export default function Index() {
           Edit
         </button>
       </div>
-      <div className="col-span-1 mt-1">Notes:</div>
-      <div className="col-span-3 mt-1">{meal.notes}</div>
-      <div className="col-span-1 mt-1">Rating:</div>
-      <div className="col-span-3 mt-1">{meal.rating}⭐️</div>
-      <div className="col-span-1 mt-1">Cost:</div>
-      <div className="col-span-3 mt-1">${meal.cost}</div>
-      <div className="col-span-1 mt-1">Reservation:</div>
-      <div className="col-span-3 mt-1">{meal.reservation ? "Yes" : "No"}</div>
-      <div className="col-span-1 mt-1">Wait Time:</div>
-      <div className="col-span-3 mt-1">{meal.queueTime} minutes</div>
-    </div>
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<FontAwesomeIcon icon={faChevronDown} size="sm" />}
+        >
+          Meal
+        </AccordionSummary>
+        <AccordionDetails>
+          <div className="grid grid-cols-4">
+            <div className="col-span-1 mt-1">Dish:</div>
+            <div className="col-span-3 mt-1">{meal.dish}</div>
+            <div className="col-span-1 mt-1">Notes:</div>
+            <div className="col-span-3 mt-1">{meal.notes}</div>
+            <div className="col-span-1 mt-1">Rating:</div>
+            <div className="col-span-3 mt-1">{meal.rating}⭐️</div>
+            <div className="col-span-1 mt-1">Cost:</div>
+            <div className="col-span-3 mt-1">${meal.cost}</div>
+            <div className="col-span-1 mt-1">Reservation:</div>
+            <div className="col-span-3 mt-1">
+              {meal.reservation ? "Yes" : "No"}
+            </div>
+            <div className="col-span-1 mt-1">Wait Time:</div>
+            <div className="col-span-3 mt-1">{meal.queueTime} minutes</div>
+          </div>
+        </AccordionDetails>
+      </Accordion>
+      {meal.extras.map((extra) => (
+        <Accordion key={extra.id}>
+          <AccordionSummary
+            expandIcon={<FontAwesomeIcon icon={faChevronDown} size="sm" />}
+          >
+            {MealExtraLabel[extra.type as "appetizer" | "drink" | "dessert"]}
+          </AccordionSummary>
+          <AccordionDetails>
+            <div className="grid grid-cols-4">
+              <div className="col-span-1 mt-1">Name:</div>
+              <div className="col-span-3 mt-1">{extra.name}</div>
+              <div className="col-span-1 mt-1">Notes:</div>
+              <div className="col-span-3 mt-1">{extra.notes}</div>
+              <div className="col-span-1 mt-1">Rating:</div>
+              <div className="col-span-3 mt-1">{extra.rating}⭐️</div>
+              <div className="col-span-1 mt-1">Cost:</div>
+              <div className="col-span-3 mt-1">${extra.cost}</div>
+            </div>
+          </AccordionDetails>
+        </Accordion>
+      ))}
+    </>
   );
 }

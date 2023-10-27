@@ -11,7 +11,7 @@ import { useLocation, useOutletContext } from "react-router-dom";
 import dayjs from "dayjs";
 
 import type { NavigateFunction } from "react-router-dom";
-import type { Prisma } from "@prisma/client";
+import type { Meal, MealExtra, Restaurant } from "@prisma/client";
 import type { LoaderArgs } from "@remix-run/node";
 
 import { requireUserId } from "~/session.server";
@@ -19,9 +19,7 @@ import { getMeals } from "~/models/meal.server";
 import { getCuisines } from "~/models/cuisine.server";
 
 type ContextType = {
-  meal: Prisma.MealGetPayload<{
-    include: { restaurant: true };
-  }>;
+  meal: Meal & { restaurant: Restaurant; extras: MealExtra[] };
 };
 
 export async function loader({ request }: LoaderArgs) {

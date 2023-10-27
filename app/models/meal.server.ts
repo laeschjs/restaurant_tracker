@@ -43,7 +43,7 @@ export async function getMeals({
   }
   return prisma.meal.findMany({
     where,
-    include: { restaurant: true },
+    include: { restaurant: true, extras: true },
     orderBy: { eatenAt: "desc" },
   });
 }

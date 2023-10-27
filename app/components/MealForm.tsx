@@ -11,7 +11,7 @@ import Switch from "@mui/material/Switch";
 import Grid from "@mui/material/Unstable_Grid2";
 import { makeOptions } from "~/utils";
 
-import type { Restaurant, Prisma } from "@prisma/client";
+import type { Restaurant, Meal, MealExtra } from "@prisma/client";
 import type { ISelectOption } from "~/utils";
 import type { Dayjs } from "dayjs";
 
@@ -24,9 +24,7 @@ const InputAdornment = styled("div")`
 
 interface MealFormProps {
   restaurants: Restaurant[];
-  meal?: Prisma.MealGetPayload<{
-    include: { restaurant: true };
-  }>;
+  meal?: Meal & { restaurant: Restaurant; extras: MealExtra[] };
   isNew?: boolean;
   cancelFunc?: () => void;
 }
