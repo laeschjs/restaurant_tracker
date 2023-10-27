@@ -29,12 +29,16 @@ export async function loader({ request }: LoaderArgs) {
   const cuisineId = urlSearch.searchParams.get("filter");
   const showFriends = urlSearch.searchParams.get("showFriends");
   const userId = await requireUserId(request);
-  const mealListItems = await getMeals({
+  const mealsFetcher = getMeals({
     userId,
     cuisineId,
     showFriends: Boolean(showFriends),
   });
-  const cuisines = await getCuisines();
+  const cuisinesFetcher = getCuisines();
+  const [mealListItems, cuisines] = await Promise.all([
+    mealsFetcher,
+    cuisinesFetcher,
+  ]);
   const startingCuisine = cuisines.find((c) => c.id === cuisineId);
   const startingCuisineOption = startingCuisine
     ? { label: startingCuisine.name, value: startingCuisine.id }
