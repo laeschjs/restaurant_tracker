@@ -92,6 +92,7 @@ export default function RestaurantsPage() {
   const [switchCheck, setChecked] = useState<boolean>(
     Boolean(data.showFriends)
   );
+  const [whatToFilterOn, setWhatToFilterOn] = useState<string>("");
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -102,21 +103,45 @@ export default function RestaurantsPage() {
           <Grid xs={12} md={6} className="ml-5 mb-2 md:ml-0 md:mb-0">
             <FontAwesomeIcon icon={faFilter} size="2xl" className="mr-3" />
             <Select
-              name="filter"
-              options={data.cuisines}
+              name="top-level-filter"
+              options={[
+                { label: "Cuisines", value: "Cuisines" },
+                { label: "Restaurants", value: "Restaurants" },
+              ]}
               className="mr-3 inline-block"
-              placeholder="Cuisines"
+              placeholder="Select Filter"
               isClearable
-              defaultValue={data.startingCuisine}
               onChange={(e) => {
-                customNavigate(
-                  "filter",
-                  e?.value || "",
-                  location.search,
-                  navigate
-                );
+                setWhatToFilterOn(e?.value || "");
+                customNavigate("filter", "", location.search, navigate);
               }}
             />
+            {whatToFilterOn === "Cuisines" && (
+              <div>
+                <FontAwesomeIcon
+                  icon={faFilter}
+                  size="2xl"
+                  className="mr-3"
+                  style={{ visibility: "hidden" }}
+                />
+                <Select
+                  name="filter"
+                  options={data.cuisines}
+                  className="mr-3 inline-block md:mt-2"
+                  placeholder="Cuisines"
+                  isClearable
+                  defaultValue={data.startingCuisine}
+                  onChange={(e) => {
+                    customNavigate(
+                      "filter",
+                      e?.value || "",
+                      location.search,
+                      navigate
+                    );
+                  }}
+                />
+              </div>
+            )}
           </Grid>
           <Grid xs={12} md={6} className="md:grid md:justify-items-end">
             <FormControlLabel
