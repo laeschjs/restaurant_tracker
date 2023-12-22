@@ -81,7 +81,7 @@ export default function NewRestaurantPage() {
         >
           Save
         </button>
-        <Link to="/meals" className="mt-5 ml-5 text-pink-400">
+        <Link to="/app/meals" className="mt-5 ml-5 text-pink-400">
           Cancel
         </Link>
       </Form>
