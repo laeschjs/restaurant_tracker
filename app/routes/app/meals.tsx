@@ -6,6 +6,7 @@ import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import Select from "react-select";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import Grid from "@mui/material/Grid";
 import { useState } from "react";
 import { useLocation, useOutletContext } from "react-router-dom";
 import dayjs from "dayjs";
@@ -17,6 +18,7 @@ import type { LoaderArgs } from "@remix-run/node";
 import { requireUserId } from "~/session.server";
 import { getMeals } from "~/models/meal.server";
 import { getCuisines } from "~/models/cuisine.server";
+import { getRestaurants } from "~/models/restaurant.server";
 
 type ContextType = {
   meal: Meal & { restaurant: Restaurant; extras: MealExtra[] };
@@ -24,29 +26,47 @@ type ContextType = {
 
 export async function loader({ request }: LoaderArgs) {
   const urlSearch = new URL(request.url);
-  const cuisineId = urlSearch.searchParams.get("filter");
+  const filterId = urlSearch.searchParams.get("filter");
+  let cuisineId: string | null = null;
+  let restaurantId: string | null = null;
+  if (filterId?.startsWith("c_")) {
+    cuisineId = filterId.substring(2);
+  } else if (filterId?.startsWith("r_")) {
+    restaurantId = filterId.substring(2);
+  }
   const showFriends = urlSearch.searchParams.get("showFriends");
   const userId = await requireUserId(request);
   const mealsFetcher = getMeals({
     userId,
     cuisineId,
+    restaurantId,
     showFriends: Boolean(showFriends),
   });
   const cuisinesFetcher = getCuisines();
-  const [mealListItems, cuisines] = await Promise.all([
+  const restaurantsFetcher = getRestaurants();
+  const [mealListItems, cuisines, restaurants] = await Promise.all([
     mealsFetcher,
     cuisinesFetcher,
+    restaurantsFetcher,
   ]);
   const startingCuisine = cuisines.find((c) => c.id === cuisineId);
   const startingCuisineOption = startingCuisine
-    ? { label: startingCuisine.name, value: startingCuisine.id }
+    ? { label: startingCuisine.name, value: `c_${startingCuisine.id}` }
+    : undefined;
+  const startingRestaurant = restaurants.find((r) => r.id === restaurantId);
+  const startingRestaurantOption = startingRestaurant
+    ? { label: startingRestaurant.name, value: `r_${startingRestaurant.id}` }
     : undefined;
   return json({
     startingCuisine: startingCuisineOption,
+    startingRestaurant: startingRestaurantOption,
     showFriends,
     mealListItems,
     cuisines: cuisines.map((c) => {
-      return { label: c.name, value: c.id };
+      return { label: c.name, value: `c_${c.id}` };
+    }),
+    restaurants: restaurants.map((r) => {
+      return { label: r.name, value: `r_${r.id}` };
     }),
   });
 }
@@ -91,43 +111,86 @@ export default function RestaurantsPage() {
   const [switchCheck, setChecked] = useState<boolean>(
     Boolean(data.showFriends)
   );
+  const [whatToFilterOn, setWhatToFilterOn] = useState<string>("");
   const navigate = useNavigate();
   const location = useLocation();
 
   return (
     <>
       <div className="my-5 mx-auto max-w-2xl">
-        <FontAwesomeIcon icon={faFilter} size="2xl" className="mr-3" />
-        <Select
-          name="filter"
-          options={data.cuisines}
-          className="mr-3 inline-block"
-          placeholder="Cuisines"
-          isClearable
-          defaultValue={data.startingCuisine}
-          onChange={(e) => {
-            customNavigate("filter", e?.value || "", location.search, navigate);
-          }}
-        />
-        <FormControlLabel
-          labelPlacement="start"
-          control={
-            <Switch
-              color="secondary"
-              checked={switchCheck}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setChecked(e.target.checked);
-                customNavigate(
-                  "showFriends",
-                  e.target.checked,
-                  location.search,
-                  navigate
-                );
+        <Grid container spacing={1}>
+          <Grid xs={12} md={6} className="ml-5 mb-2 md:ml-0 md:mb-0">
+            <FontAwesomeIcon icon={faFilter} size="2xl" className="mr-3" />
+            <Select
+              name="top-level-filter"
+              options={[
+                { label: "Cuisines", value: "cuisines" },
+                { label: "Restaurants", value: "restaurants" },
+              ]}
+              className="mr-3 inline-block"
+              placeholder="Select Filter"
+              isClearable
+              onChange={(e) => {
+                setWhatToFilterOn(e?.value || "");
+                customNavigate("filter", "", location.search, navigate);
               }}
             />
-          }
-          label="Show Friends Meals"
-        />
+            {whatToFilterOn && (
+              <div>
+                <FontAwesomeIcon
+                  icon={faFilter}
+                  size="2xl"
+                  className="mr-3"
+                  style={{ visibility: "hidden" }}
+                />
+                <Select
+                  name="filter"
+                  options={data[whatToFilterOn as "cuisines" | "restaurants"]}
+                  className="mr-3 mt-2 inline-block"
+                  placeholder={
+                    whatToFilterOn.charAt(0).toUpperCase() +
+                    whatToFilterOn.slice(1)
+                  }
+                  isClearable
+                  defaultValue={
+                    whatToFilterOn === "cuisines"
+                      ? data.startingCuisine
+                      : data.startingRestaurant
+                  }
+                  onChange={(e) => {
+                    customNavigate(
+                      "filter",
+                      e?.value || "",
+                      location.search,
+                      navigate
+                    );
+                  }}
+                />
+              </div>
+            )}
+          </Grid>
+          <Grid xs={12} md={6} className="md:grid md:justify-items-end">
+            <FormControlLabel
+              labelPlacement="start"
+              control={
+                <Switch
+                  color="secondary"
+                  checked={switchCheck}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setChecked(e.target.checked);
+                    customNavigate(
+                      "showFriends",
+                      e.target.checked,
+                      location.search,
+                      navigate
+                    );
+                  }}
+                />
+              }
+              label="Show Friends Meals"
+            />
+          </Grid>
+        </Grid>
       </div>
       {data.mealListItems.map((meal) => {
         const eatenAt = new Date(meal.eatenAt);
