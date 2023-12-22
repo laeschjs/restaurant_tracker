@@ -18,6 +18,7 @@ import type { LoaderArgs } from "@remix-run/node";
 import { requireUserId } from "~/session.server";
 import { getMeals } from "~/models/meal.server";
 import { getCuisines } from "~/models/cuisine.server";
+import { getRestaurants } from "~/models/restaurant.server";
 
 type ContextType = {
   meal: Meal & { restaurant: Restaurant; extras: MealExtra[] };
@@ -25,29 +26,47 @@ type ContextType = {
 
 export async function loader({ request }: LoaderArgs) {
   const urlSearch = new URL(request.url);
-  const cuisineId = urlSearch.searchParams.get("filter");
+  const filterId = urlSearch.searchParams.get("filter");
+  let cuisineId: string | null = null;
+  let restaurantId: string | null = null;
+  if (filterId?.startsWith("c_")) {
+    cuisineId = filterId.substring(2);
+  } else if (filterId?.startsWith("r_")) {
+    restaurantId = filterId.substring(2);
+  }
   const showFriends = urlSearch.searchParams.get("showFriends");
   const userId = await requireUserId(request);
   const mealsFetcher = getMeals({
     userId,
     cuisineId,
+    restaurantId,
     showFriends: Boolean(showFriends),
   });
   const cuisinesFetcher = getCuisines();
-  const [mealListItems, cuisines] = await Promise.all([
+  const restaurantsFetcher = getRestaurants();
+  const [mealListItems, cuisines, restaurants] = await Promise.all([
     mealsFetcher,
     cuisinesFetcher,
+    restaurantsFetcher,
   ]);
   const startingCuisine = cuisines.find((c) => c.id === cuisineId);
   const startingCuisineOption = startingCuisine
-    ? { label: startingCuisine.name, value: startingCuisine.id }
+    ? { label: startingCuisine.name, value: `c_${startingCuisine.id}` }
+    : undefined;
+  const startingRestaurant = restaurants.find((r) => r.id === restaurantId);
+  const startingRestaurantOption = startingRestaurant
+    ? { label: startingRestaurant.name, value: `r_${startingRestaurant.id}` }
     : undefined;
   return json({
     startingCuisine: startingCuisineOption,
+    startingRestaurant: startingRestaurantOption,
     showFriends,
     mealListItems,
     cuisines: cuisines.map((c) => {
-      return { label: c.name, value: c.id };
+      return { label: c.name, value: `c_${c.id}` };
+    }),
+    restaurants: restaurants.map((r) => {
+      return { label: r.name, value: `r_${r.id}` };
     }),
   });
 }
@@ -105,8 +124,8 @@ export default function RestaurantsPage() {
             <Select
               name="top-level-filter"
               options={[
-                { label: "Cuisines", value: "Cuisines" },
-                { label: "Restaurants", value: "Restaurants" },
+                { label: "Cuisines", value: "cuisines" },
+                { label: "Restaurants", value: "restaurants" },
               ]}
               className="mr-3 inline-block"
               placeholder="Select Filter"
@@ -116,7 +135,7 @@ export default function RestaurantsPage() {
                 customNavigate("filter", "", location.search, navigate);
               }}
             />
-            {whatToFilterOn === "Cuisines" && (
+            {whatToFilterOn && (
               <div>
                 <FontAwesomeIcon
                   icon={faFilter}
@@ -126,11 +145,18 @@ export default function RestaurantsPage() {
                 />
                 <Select
                   name="filter"
-                  options={data.cuisines}
-                  className="mr-3 inline-block md:mt-2"
-                  placeholder="Cuisines"
+                  options={data[whatToFilterOn as "cuisines" | "restaurants"]}
+                  className="mr-3 mt-2 inline-block"
+                  placeholder={
+                    whatToFilterOn.charAt(0).toUpperCase() +
+                    whatToFilterOn.slice(1)
+                  }
                   isClearable
-                  defaultValue={data.startingCuisine}
+                  defaultValue={
+                    whatToFilterOn === "cuisines"
+                      ? data.startingCuisine
+                      : data.startingRestaurant
+                  }
                   onChange={(e) => {
                     customNavigate(
                       "filter",

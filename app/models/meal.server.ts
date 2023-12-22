@@ -1,13 +1,15 @@
-import type { User, Cuisine, Meal, Prisma } from "@prisma/client";
+import type { User, Cuisine, Meal, Prisma, Restaurant } from "@prisma/client";
 import { prisma } from "~/db.server";
 
 export async function getMeals({
   userId,
   cuisineId,
+  restaurantId,
   showFriends,
 }: {
   userId: User["id"];
   cuisineId: Cuisine["id"] | null;
+  restaurantId: Restaurant["id"] | null;
   showFriends: boolean;
 }) {
   const where: Prisma.MealWhereInput = {
@@ -25,6 +27,11 @@ export async function getMeals({
     const restaurantIds = restaurantPrismaIds.map((rel) => rel.restaurantId);
     where["restaurantId"] = {
       in: restaurantIds,
+    };
+  }
+  if (restaurantId) {
+    where["restaurantId"] = {
+      in: [restaurantId],
     };
   }
   if (showFriends) {
