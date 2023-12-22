@@ -6,6 +6,7 @@ import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import Select from "react-select";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
+import Grid from "@mui/material/Grid";
 import { useState } from "react";
 import { useLocation, useOutletContext } from "react-router-dom";
 import dayjs from "dayjs";
@@ -97,37 +98,48 @@ export default function RestaurantsPage() {
   return (
     <>
       <div className="my-5 mx-auto max-w-2xl">
-        <FontAwesomeIcon icon={faFilter} size="2xl" className="mr-3" />
-        <Select
-          name="filter"
-          options={data.cuisines}
-          className="mr-3 inline-block"
-          placeholder="Cuisines"
-          isClearable
-          defaultValue={data.startingCuisine}
-          onChange={(e) => {
-            customNavigate("filter", e?.value || "", location.search, navigate);
-          }}
-        />
-        <FormControlLabel
-          labelPlacement="start"
-          control={
-            <Switch
-              color="secondary"
-              checked={switchCheck}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setChecked(e.target.checked);
+        <Grid container spacing={1}>
+          <Grid xs={12} md={6} className="ml-5 mb-2 md:ml-0 md:mb-0">
+            <FontAwesomeIcon icon={faFilter} size="2xl" className="mr-3" />
+            <Select
+              name="filter"
+              options={data.cuisines}
+              className="mr-3 inline-block"
+              placeholder="Cuisines"
+              isClearable
+              defaultValue={data.startingCuisine}
+              onChange={(e) => {
                 customNavigate(
-                  "showFriends",
-                  e.target.checked,
+                  "filter",
+                  e?.value || "",
                   location.search,
                   navigate
                 );
               }}
             />
-          }
-          label="Show Friends Meals"
-        />
+          </Grid>
+          <Grid xs={12} md={6} className="md:grid md:justify-items-end">
+            <FormControlLabel
+              labelPlacement="start"
+              control={
+                <Switch
+                  color="secondary"
+                  checked={switchCheck}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setChecked(e.target.checked);
+                    customNavigate(
+                      "showFriends",
+                      e.target.checked,
+                      location.search,
+                      navigate
+                    );
+                  }}
+                />
+              }
+              label="Show Friends Meals"
+            />
+          </Grid>
+        </Grid>
       </div>
       {data.mealListItems.map((meal) => {
         const eatenAt = new Date(meal.eatenAt);
