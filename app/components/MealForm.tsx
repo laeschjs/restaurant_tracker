@@ -25,14 +25,12 @@ const InputAdornment = styled("div")`
 interface MealFormProps {
   restaurants: Restaurant[];
   meal?: Meal & { restaurant: Restaurant; extras: MealExtra[] };
-  isNew?: boolean;
   cancelFunc?: () => void;
 }
 
 export default function MealForm({
   restaurants,
   meal,
-  isNew,
   cancelFunc,
 }: MealFormProps) {
   let startingEatenAt = dayjs();

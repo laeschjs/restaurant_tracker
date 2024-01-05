@@ -39,5 +39,5 @@ export async function action({ request }: ActionArgs) {
 
 export default function NewMealPage() {
   const data = useLoaderData<typeof loader>();
-  return <MealForm restaurants={data.restaurants} isNew />;
+  return <MealForm restaurants={data.restaurants} />;
 }
