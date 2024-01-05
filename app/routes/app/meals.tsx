@@ -6,7 +6,7 @@ import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import Select from "react-select";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Unstable_Grid2";
 import { useState } from "react";
 import { useLocation, useOutletContext } from "react-router-dom";
 import dayjs from "dayjs";
