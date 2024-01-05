@@ -145,3 +145,11 @@ export function editMeal({
     },
   });
 }
+
+export function deleteMeal(id: Meal["id"]) {
+  return prisma.meal.delete({
+    where: {
+      id,
+    },
+  });
+}
