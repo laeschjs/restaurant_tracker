@@ -87,6 +87,7 @@ export default function MealForm({
             name="notes"
             className="col-span-3"
             defaultValue={meal?.notes}
+            multiline
           />
         </label>
         <label className="my-3 flex grid grid-cols-4 items-center gap-1">
@@ -159,6 +160,7 @@ export default function MealForm({
               <TextField
                 name={`extras[${index}][notes]`}
                 className="col-span-3"
+                multiline
               />
             </label>
             <label className="my-3 flex grid grid-cols-4 items-center gap-1">
