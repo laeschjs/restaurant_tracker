@@ -62,6 +62,7 @@ export async function loader({ request }: LoaderArgs) {
     startingRestaurant: startingRestaurantOption,
     showFriends,
     mealListItems,
+    userId,
     cuisines: cuisines.map((c) => {
       return { label: c.name, value: `c_${c.id}` };
     }),
@@ -194,6 +195,10 @@ export default function RestaurantsPage() {
       </div>
       {data.mealListItems.map((meal) => {
         const eatenAt = new Date(meal.eatenAt);
+        let backgroundColor = "bg-sky-200 hover:bg-sky-300";
+        if (meal.userId !== data.userId) {
+          backgroundColor = "bg-violet-200 hover:bg-violet-300";
+        }
         return (
           <li
             key={meal.id}
@@ -202,7 +207,9 @@ export default function RestaurantsPage() {
             <Disclosure>
               {({ open }) => (
                 <>
-                  <Disclosure.Button className="flex w-full justify-between rounded-md bg-sky-100 px-4 py-2 text-left font-medium text-sky-800 hover:bg-sky-200">
+                  <Disclosure.Button
+                    className={`flex w-full justify-between rounded-md ${backgroundColor} px-4 py-2 text-left font-medium text-sky-800`}
+                  >
                     <span>{meal.restaurant.name}</span>
                     <span>{dayjs(eatenAt).format("L LT")}</span>
                   </Disclosure.Button>
