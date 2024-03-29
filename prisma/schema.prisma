@@ -99,7 +99,7 @@ model Meal {
 model MealExtra {
   id String @id @default(cuid())
 
-  type   String
+  type   String?
   name   String
   notes  String?
   rating Int
