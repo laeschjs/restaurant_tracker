@@ -3,22 +3,22 @@ import { prisma } from "~/db.server";
 
 export async function getMeals({
   userId,
-  cuisineId,
-  restaurantId,
+  filterId,
+  filterType,
   showFriends,
 }: {
   userId: User["id"];
-  cuisineId: Cuisine["id"] | null;
-  restaurantId: Restaurant["id"] | null;
+  filterId: Restaurant["id"] | Cuisine["id"] | null;
+  filterType: string | null;
   showFriends: boolean;
 }) {
   const where: Prisma.MealWhereInput = {
     userId: userId,
   };
-  if (cuisineId) {
+  if (filterType === "cuisines" && filterId) {
     const restaurantPrismaIds = await prisma.restaurantCuisineMapper.findMany({
       where: {
-        cuisineId: cuisineId,
+        cuisineId: filterId,
       },
       select: {
         restaurantId: true,
@@ -29,9 +29,9 @@ export async function getMeals({
       in: restaurantIds,
     };
   }
-  if (restaurantId) {
+  if (filterType === "restaurants" && filterId) {
     where["restaurantId"] = {
-      in: [restaurantId],
+      in: [filterId],
     };
   }
   if (showFriends) {

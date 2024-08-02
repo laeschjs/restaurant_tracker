@@ -1,5 +1,5 @@
 import { json } from "@remix-run/node";
-import { Outlet, useLoaderData, useNavigate } from "@remix-run/react";
+import { Outlet, useLoaderData, useSearchParams } from "@remix-run/react";
 import { Disclosure } from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
@@ -7,11 +7,10 @@ import Select from "react-select";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Grid from "@mui/material/Unstable_Grid2";
-import { useState } from "react";
-import { useLocation, useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import dayjs from "dayjs";
+import { capitalize } from "@mui/material";
 
-import type { NavigateFunction } from "react-router-dom";
 import type { Meal, MealExtra, Restaurant } from "@prisma/client";
 import type { LoaderArgs } from "@remix-run/node";
 
@@ -25,21 +24,20 @@ type ContextType = {
 };
 
 export async function loader({ request }: LoaderArgs) {
-  const urlSearch = new URL(request.url);
-  const filterId = urlSearch.searchParams.get("filter");
-  let cuisineId: string | null = null;
-  let restaurantId: string | null = null;
-  if (filterId?.startsWith("c_")) {
-    cuisineId = filterId.substring(2);
-  } else if (filterId?.startsWith("r_")) {
-    restaurantId = filterId.substring(2);
-  }
-  const showFriends = urlSearch.searchParams.get("showFriends");
   const userId = await requireUserId(request);
+  const url = new URL(request.url);
+  const urlSearch = new URLSearchParams(url.search);
+  const filterId = urlSearch.get("filterId") || "";
+  const filterType = urlSearch.get("filterType") || "";
+  const showFriends = urlSearch.get("showFriends") || false;
+
+  let startingFilterIdOption: { label: string; filterId: string } | undefined;
+  let startingFilterTypeOption: { label: string; value: string } | undefined;
+  let filterOptions: { label: string; filterId: string }[] = [];
   const mealsFetcher = getMeals({
     userId,
-    cuisineId,
-    restaurantId,
+    filterId,
+    filterType,
     showFriends: Boolean(showFriends),
   });
   const cuisinesFetcher = getCuisines();
@@ -49,58 +47,30 @@ export async function loader({ request }: LoaderArgs) {
     cuisinesFetcher,
     restaurantsFetcher,
   ]);
-  const startingCuisine = cuisines.find((c) => c.id === cuisineId);
-  const startingCuisineOption = startingCuisine
-    ? { label: startingCuisine.name, value: `c_${startingCuisine.id}` }
-    : undefined;
-  const startingRestaurant = restaurants.find((r) => r.id === restaurantId);
-  const startingRestaurantOption = startingRestaurant
-    ? { label: startingRestaurant.name, value: `r_${startingRestaurant.id}` }
-    : undefined;
+
+  if (filterType) {
+    const dataToUse = filterType === "cuisines" ? cuisines : restaurants;
+    const starter = dataToUse.find((data) => data.id === filterId);
+    startingFilterIdOption = starter
+      ? { label: starter.name, filterId: starter.id }
+      : undefined;
+    startingFilterTypeOption = {
+      label: capitalize(filterType),
+      value: filterType,
+    };
+    filterOptions = dataToUse.map((c) => {
+      return { label: c.name, filterId: c.id };
+    });
+  }
   return json({
-    startingCuisine: startingCuisineOption,
-    startingRestaurant: startingRestaurantOption,
+    startingFilterIdOption,
+    startingFilterTypeOption,
+    filterOptions,
     showFriends,
+    filterType,
     mealListItems,
     userId,
-    cuisines: cuisines.map((c) => {
-      return { label: c.name, value: `c_${c.id}` };
-    }),
-    restaurants: restaurants.map((r) => {
-      return { label: r.name, value: `r_${r.id}` };
-    }),
   });
-}
-
-function customNavigate(
-  key: string,
-  value: string | boolean,
-  searchParams: string,
-  navigate: NavigateFunction
-) {
-  if (searchParams) {
-    let searchParts = searchParams.split("&");
-    searchParts[0] = searchParts[0].replace("?", "");
-    let keyInParams = false;
-    searchParts = searchParts.reduce((result: Array<string>, part: string) => {
-      if (!part.includes(key + "=")) {
-        return result.concat([part]);
-      } else {
-        keyInParams = true;
-        if (value) {
-          result.push(key + "=" + value);
-        }
-        return result;
-      }
-    }, []);
-    if (!keyInParams) searchParts.push(key + "=" + value);
-
-    navigate("?" + searchParts.join("&"));
-  } else if (value) {
-    navigate("?" + key + "=" + value);
-  } else {
-    navigate("");
-  }
 }
 
 export function useMealFromContext() {
@@ -109,12 +79,7 @@ export function useMealFromContext() {
 
 export default function RestaurantsPage() {
   const data = useLoaderData<typeof loader>();
-  const [switchCheck, setChecked] = useState<boolean>(
-    Boolean(data.showFriends)
-  );
-  const [whatToFilterOn, setWhatToFilterOn] = useState<string>("");
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   return (
     <>
@@ -131,12 +96,18 @@ export default function RestaurantsPage() {
               className="mr-3 inline-block"
               placeholder="Select Filter"
               isClearable
+              defaultValue={data.startingFilterTypeOption}
               onChange={(e) => {
-                setWhatToFilterOn(e?.value || "");
-                customNavigate("filter", "", location.search, navigate);
+                if (e?.value) {
+                  searchParams.set("filterType", e.value);
+                } else {
+                  searchParams.delete("filterType");
+                }
+                searchParams.delete("filterId");
+                setSearchParams(searchParams);
               }}
             />
-            {whatToFilterOn && (
+            {data.filterType && (
               <div>
                 <FontAwesomeIcon
                   icon={faFilter}
@@ -146,25 +117,18 @@ export default function RestaurantsPage() {
                 />
                 <Select
                   name="filter"
-                  options={data[whatToFilterOn as "cuisines" | "restaurants"]}
+                  options={data.filterOptions}
                   className="mr-3 mt-2 inline-block"
-                  placeholder={
-                    whatToFilterOn.charAt(0).toUpperCase() +
-                    whatToFilterOn.slice(1)
-                  }
+                  placeholder={capitalize(data.filterType)}
                   isClearable
-                  defaultValue={
-                    whatToFilterOn === "cuisines"
-                      ? data.startingCuisine
-                      : data.startingRestaurant
-                  }
+                  defaultValue={data.startingFilterIdOption}
                   onChange={(e) => {
-                    customNavigate(
-                      "filter",
-                      e?.value || "",
-                      location.search,
-                      navigate
-                    );
+                    if (e?.filterId) {
+                      searchParams.set("filterId", e.filterId);
+                    } else {
+                      searchParams.delete("filterId");
+                    }
+                    setSearchParams(searchParams);
                   }}
                 />
               </div>
@@ -176,15 +140,14 @@ export default function RestaurantsPage() {
               control={
                 <Switch
                   color="secondary"
-                  checked={switchCheck}
+                  checked={Boolean(data.showFriends)}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setChecked(e.target.checked);
-                    customNavigate(
-                      "showFriends",
-                      e.target.checked,
-                      location.search,
-                      navigate
-                    );
+                    if (e.target.checked) {
+                      searchParams.set("showFriends", "true");
+                    } else {
+                      searchParams.delete("showFriends");
+                    }
+                    setSearchParams(searchParams);
                   }}
                 />
               }
