@@ -44,6 +44,7 @@ export default function MealForm({
     useState<ISelectOption | null>(startingRestaurant);
   const [extras, setExtras] = useState<string[]>([]);
   const extraOptions = [
+    { label: "Entree", value: "entree" },
     { label: "Appetizer", value: "appetizer" },
     { label: "Drink", value: "drink" },
     { label: "Dessert", value: "dessert" },
@@ -71,36 +72,6 @@ export default function MealForm({
             onChange={(restaurant) => setSelectedRestaurant(restaurant)}
             isSearchable
             className="col-span-3"
-          />
-        </label>
-        <label className="my-3 flex grid grid-cols-4 items-center gap-1">
-          <span className="col-span-1">Dish: </span>
-          <TextField
-            name="dish"
-            className="col-span-3"
-            defaultValue={meal?.dish}
-          />
-        </label>
-        <label className="my-3 flex grid grid-cols-4 items-center gap-1">
-          <span className="col-span-1">Notes: </span>
-          <TextField
-            name="notes"
-            className="col-span-3"
-            defaultValue={meal?.notes}
-            multiline
-          />
-        </label>
-        <label className="my-3 flex grid grid-cols-4 items-center gap-1">
-          <span className="col-span-1">Rating: </span>
-          <Rating name="rating" defaultValue={meal?.rating} max={10} />
-        </label>
-        <label className="my-3 flex grid grid-cols-4 items-center gap-1">
-          <span className="col-span-1">Cost: </span>
-          <OutlinedInput
-            name="cost"
-            className="col-span-3"
-            defaultValue={meal?.cost}
-            startAdornment={<InputAdornment>$</InputAdornment>}
           />
         </label>
         <label className="my-3 flex grid grid-cols-4 items-center gap-1">

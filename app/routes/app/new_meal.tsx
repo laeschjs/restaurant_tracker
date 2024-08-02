@@ -22,10 +22,6 @@ export async function action({ request }: ActionArgs) {
   const values = qs.parse(text);
 
   await createMeal({
-    dish: `${values.dish}`,
-    notes: `${values.notes}`,
-    rating: parseInt(`${values.rating}`),
-    cost: parseFloat(`${values.cost}`),
     reservation: values.reservation === "on",
     queueTime: parseInt(`${values.queueTime}`) || 0,
     restaurantId: `${values.new_restaurant}`,
