@@ -64,10 +64,6 @@ export interface MealExtraParam {
 }
 
 export async function createMeal({
-  dish,
-  notes,
-  cost,
-  rating,
   reservation,
   queueTime,
   restaurantId,
@@ -77,10 +73,6 @@ export async function createMeal({
 }: Omit<Meal, "id"> & { extras: MealExtraParam[] }) {
   const meal = await prisma.meal.create({
     data: {
-      dish,
-      notes,
-      cost,
-      rating,
       reservation,
       queueTime,
       eatenAt,
@@ -110,10 +102,6 @@ export async function createMeal({
 
 export function editMeal({
   id,
-  dish,
-  notes,
-  cost,
-  rating,
   reservation,
   queueTime,
   restaurantId,
@@ -125,10 +113,6 @@ export function editMeal({
       id,
     },
     data: {
-      dish,
-      notes,
-      cost,
-      rating,
       reservation,
       queueTime,
       eatenAt,

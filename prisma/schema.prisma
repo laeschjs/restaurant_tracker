@@ -80,12 +80,8 @@ model Meal {
   id String @id @default(cuid())
 
   eatenAt     DateTime @default(now())
-  notes       String?
-  dish        String
-  rating      Int
   queueTime   Int      @default(0)
   reservation Boolean  @default(false)
-  cost        Float
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String

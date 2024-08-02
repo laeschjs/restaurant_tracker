@@ -52,11 +52,15 @@ async function seed() {
       meals: [
         {
           eatenAt: new Date("9/21/22"),
-          notes:
-            "I got the side of beans instead of fries and it was very good, def would recommend getting.",
-          dish: "Quesadilla",
-          rating: 10,
-          cost: 20.19,
+          extras: [
+            {
+              notes:
+                "I got the side of beans instead of fries and it was very good, def would recommend getting.",
+              name: "Quesadilla",
+              rating: 10,
+              cost: 20.19,
+            },
+          ],
         },
       ],
     },
@@ -66,9 +70,14 @@ async function seed() {
       meals: [
         {
           eatenAt: new Date("10/24/22"),
-          dish: "BBQ Mac N Cheese",
-          rating: 10,
-          cost: 15.85,
+          extras: [
+            {
+              name: "BBQ Mac N Cheese",
+              rating: 10,
+              cost: 15.85,
+              notes: "test",
+            },
+          ],
         },
       ],
     },
@@ -78,11 +87,14 @@ async function seed() {
       meals: [
         {
           eatenAt: new Date("12/04/22"),
-          notes: "This is only an option in the winter.",
-          dish: "Cinnamon chip pancake",
-          rating: 10,
-          cost: 12.37,
-          queueTime: 15,
+          extras: [
+            {
+              notes: "This is only an option in the winter.",
+              name: "Cinnamon chip pancake",
+              rating: 10,
+              cost: 12.37,
+            },
+          ],
         },
       ],
     },
@@ -126,13 +138,25 @@ async function seed() {
       });
     }
     for (const seed3 of seed.meals) {
-      await prisma.meal.create({
+      const meal = await prisma.meal.create({
         data: {
           restaurantId: restaurant.id,
           userId: user.id,
-          ...seed3,
+          eatenAt: seed3.eatenAt,
         },
       });
+      for (const seed4 of seed3.extras) {
+        await prisma.mealExtra.create({
+          data: {
+            mealId: meal.id,
+            name: seed4.name,
+            notes: seed4.notes,
+            rating: seed4.rating,
+            cost: seed4.cost,
+            type: "entree",
+          },
+        });
+      }
     }
   }
 

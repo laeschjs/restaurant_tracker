@@ -28,6 +28,18 @@ interface MealFormProps {
   cancelFunc?: () => void;
 }
 
+function addBlankExtra() {
+  return {
+    type: "",
+    name: "",
+    notes: "",
+    id: "",
+    mealId: "",
+    rating: 0,
+    cost: 0,
+  };
+}
+
 export default function MealForm({
   restaurants,
   meal,
@@ -42,8 +54,11 @@ export default function MealForm({
   const [eatenAt, setEatenAt] = useState<Dayjs | null>(startingEatenAt);
   const [selectedRestaurant, setSelectedRestaurant] =
     useState<ISelectOption | null>(startingRestaurant);
-  const [extras, setExtras] = useState<string[]>([]);
+  const [extras, setExtras] = useState<MealExtra[]>(
+    meal?.extras || [addBlankExtra()]
+  );
   const extraOptions = [
+    { label: "Entree", value: "entree" },
     { label: "Appetizer", value: "appetizer" },
     { label: "Drink", value: "drink" },
     { label: "Dessert", value: "dessert" },
@@ -71,36 +86,6 @@ export default function MealForm({
             onChange={(restaurant) => setSelectedRestaurant(restaurant)}
             isSearchable
             className="col-span-3"
-          />
-        </label>
-        <label className="my-3 flex grid grid-cols-4 items-center gap-1">
-          <span className="col-span-1">Dish: </span>
-          <TextField
-            name="dish"
-            className="col-span-3"
-            defaultValue={meal?.dish}
-          />
-        </label>
-        <label className="my-3 flex grid grid-cols-4 items-center gap-1">
-          <span className="col-span-1">Notes: </span>
-          <TextField
-            name="notes"
-            className="col-span-3"
-            defaultValue={meal?.notes}
-            multiline
-          />
-        </label>
-        <label className="my-3 flex grid grid-cols-4 items-center gap-1">
-          <span className="col-span-1">Rating: </span>
-          <Rating name="rating" defaultValue={meal?.rating} max={10} />
-        </label>
-        <label className="my-3 flex grid grid-cols-4 items-center gap-1">
-          <span className="col-span-1">Cost: </span>
-          <OutlinedInput
-            name="cost"
-            className="col-span-3"
-            defaultValue={meal?.cost}
-            startAdornment={<InputAdornment>$</InputAdornment>}
           />
         </label>
         <label className="my-3 flex grid grid-cols-4 items-center gap-1">
@@ -138,7 +123,7 @@ export default function MealForm({
           />
         </label>
         <input className="hidden" name="mealId" value={meal?.id} />
-        {extras.map((_, index) => (
+        {extras.map((extra, index) => (
           <div className="mt-3 border-t-2 border-gray-600" key={index}>
             <label className="my-3 flex grid grid-cols-4 items-center gap-1">
               <span className="col-span-1">Type: </span>
@@ -146,6 +131,7 @@ export default function MealForm({
                 name={`extras[${index}][type]`}
                 options={extraOptions}
                 className="col-span-3"
+                defaultInputValue={extra.type}
               />
             </label>
             <label className="my-3 flex grid grid-cols-4 items-center gap-1">
@@ -153,6 +139,7 @@ export default function MealForm({
               <TextField
                 name={`extras[${index}][name]`}
                 className="col-span-3"
+                defaultValue={extra.name}
               />
             </label>
             <label className="my-3 flex grid grid-cols-4 items-center gap-1">
@@ -161,11 +148,16 @@ export default function MealForm({
                 name={`extras[${index}][notes]`}
                 className="col-span-3"
                 multiline
+                defaultValue={extra.notes}
               />
             </label>
             <label className="my-3 flex grid grid-cols-4 items-center gap-1">
               <span className="col-span-1">Rating: </span>
-              <Rating name={`extras[${index}][rating]`} max={10} />
+              <Rating
+                name={`extras[${index}][rating]`}
+                max={10}
+                defaultValue={extra.rating}
+              />
             </label>
             <label className="my-3 flex grid grid-cols-4 items-center gap-1">
               <span className="col-span-1">Cost: </span>
@@ -173,6 +165,7 @@ export default function MealForm({
                 name={`extras[${index}][cost]`}
                 className="col-span-3"
                 startAdornment={<InputAdornment>$</InputAdornment>}
+                defaultValue={extra.cost}
               />
             </label>
           </div>
@@ -181,7 +174,7 @@ export default function MealForm({
           className="mt-3 mb-5 block w-full rounded py-3 text-center text-green-400 hover:bg-green-400 hover:text-white"
           onClick={(e) => {
             e.preventDefault();
-            setExtras([...extras, "dummy"]);
+            setExtras([...extras, addBlankExtra()]);
           }}
         >
           + Add an Extra +

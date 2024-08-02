@@ -17,6 +17,7 @@ import { editMeal } from "~/models/meal.server";
 import type { LoaderArgs, ActionArgs } from "@remix-run/node";
 
 enum MealExtraLabel {
+  entree = "Entree",
   appetizer = "Appetizer",
   drink = "Drink",
   dessert = "Dessert",
@@ -34,10 +35,6 @@ export async function action({ request }: ActionArgs) {
 
   await editMeal({
     id: `${formData.get("mealId")}`,
-    dish: `${formData.get("dish")}`,
-    notes: `${formData.get("notes")}`,
-    rating: parseInt(`${formData.get("rating")}`),
-    cost: parseFloat(`${formData.get("cost")}`),
     reservation: formData.get("reservation") === "on",
     queueTime: parseInt(`${formData.get("queueTime")}`) || 0,
     restaurantId: `${formData.get("new_restaurant")}`,
@@ -64,51 +61,39 @@ export default function Index() {
   }
   return (
     <>
-      <div className="mb-3 text-end">
-        <button
-          className="text-blue-500 underline"
-          onClick={() => setEditMode(true)}
-        >
-          Edit
-        </button>
-        <button
-          className="ml-3 text-red-500 underline"
-          onClick={() => setOpenDeleteModal(true)}
-        >
-          Delete
-        </button>
+      <div className="grid grid-cols-4">
+        <div className="col-span-1 mt-1">Reservation:</div>
+        <div className="col-span-1 mt-1">{meal.reservation ? "Yes" : "No"}</div>
+        <div className="col-span-2 text-end">
+          <button
+            className="text-blue-500 underline"
+            onClick={() => setEditMode(true)}
+          >
+            Edit
+          </button>
+          <button
+            className="ml-3 text-red-500 underline"
+            onClick={() => setOpenDeleteModal(true)}
+          >
+            Delete
+          </button>
+        </div>
+        <div className="col-span-1 mt-1">Wait Time:</div>
+        <div className="col-span-3 mt-1 mb-3">{meal.queueTime} minutes</div>
       </div>
-      <Accordion>
-        <AccordionSummary
-          expandIcon={<FontAwesomeIcon icon={faChevronDown} size="sm" />}
-        >
-          Meal
-        </AccordionSummary>
-        <AccordionDetails>
-          <div className="grid grid-cols-4">
-            <div className="col-span-1 mt-1">Dish:</div>
-            <div className="col-span-3 mt-1">{meal.dish}</div>
-            <div className="col-span-1 mt-1">Notes:</div>
-            <div className="col-span-3 mt-1">{meal.notes}</div>
-            <div className="col-span-1 mt-1">Rating:</div>
-            <div className="col-span-3 mt-1">{meal.rating}⭐️</div>
-            <div className="col-span-1 mt-1">Cost:</div>
-            <div className="col-span-3 mt-1">${meal.cost}</div>
-            <div className="col-span-1 mt-1">Reservation:</div>
-            <div className="col-span-3 mt-1">
-              {meal.reservation ? "Yes" : "No"}
-            </div>
-            <div className="col-span-1 mt-1">Wait Time:</div>
-            <div className="col-span-3 mt-1">{meal.queueTime} minutes</div>
-          </div>
-        </AccordionDetails>
-      </Accordion>
+
       {meal.extras.map((extra) => (
         <Accordion key={extra.id}>
           <AccordionSummary
             expandIcon={<FontAwesomeIcon icon={faChevronDown} size="sm" />}
           >
-            {MealExtraLabel[extra.type as "appetizer" | "drink" | "dessert"]}
+            <b>
+              {
+                MealExtraLabel[
+                  extra.type as "entree" | "appetizer" | "drink" | "dessert"
+                ]
+              }
+            </b>
           </AccordionSummary>
           <AccordionDetails>
             <div className="grid grid-cols-4">
