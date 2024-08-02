@@ -1,5 +1,5 @@
 import { json } from "@remix-run/node";
-import { Outlet, useLoaderData, useNavigate } from "@remix-run/react";
+import { Outlet, useLoaderData, useSearchParams } from "@remix-run/react";
 import { Disclosure } from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
@@ -8,10 +8,9 @@ import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Grid from "@mui/material/Unstable_Grid2";
 import { useState } from "react";
-import { useLocation, useOutletContext } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 import dayjs from "dayjs";
 
-import type { NavigateFunction } from "react-router-dom";
 import type { Meal, MealExtra, Restaurant } from "@prisma/client";
 import type { LoaderArgs } from "@remix-run/node";
 
@@ -72,37 +71,6 @@ export async function loader({ request }: LoaderArgs) {
   });
 }
 
-function customNavigate(
-  key: string,
-  value: string | boolean,
-  searchParams: string,
-  navigate: NavigateFunction
-) {
-  if (searchParams) {
-    let searchParts = searchParams.split("&");
-    searchParts[0] = searchParts[0].replace("?", "");
-    let keyInParams = false;
-    searchParts = searchParts.reduce((result: Array<string>, part: string) => {
-      if (!part.includes(key + "=")) {
-        return result.concat([part]);
-      } else {
-        keyInParams = true;
-        if (value) {
-          result.push(key + "=" + value);
-        }
-        return result;
-      }
-    }, []);
-    if (!keyInParams) searchParts.push(key + "=" + value);
-
-    navigate("?" + searchParts.join("&"));
-  } else if (value) {
-    navigate("?" + key + "=" + value);
-  } else {
-    navigate("");
-  }
-}
-
 export function useMealFromContext() {
   return useOutletContext<ContextType>();
 }
@@ -113,8 +81,7 @@ export default function RestaurantsPage() {
     Boolean(data.showFriends)
   );
   const [whatToFilterOn, setWhatToFilterOn] = useState<string>("");
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   return (
     <>
@@ -133,7 +100,8 @@ export default function RestaurantsPage() {
               isClearable
               onChange={(e) => {
                 setWhatToFilterOn(e?.value || "");
-                customNavigate("filter", "", location.search, navigate);
+                searchParams.delete("filter");
+                setSearchParams(searchParams);
               }}
             />
             {whatToFilterOn && (
@@ -159,12 +127,12 @@ export default function RestaurantsPage() {
                       : data.startingRestaurant
                   }
                   onChange={(e) => {
-                    customNavigate(
-                      "filter",
-                      e?.value || "",
-                      location.search,
-                      navigate
-                    );
+                    if (e?.value) {
+                      searchParams.set("filter", e.value);
+                    } else {
+                      searchParams.delete("filter");
+                    }
+                    setSearchParams(searchParams);
                   }}
                 />
               </div>
@@ -179,12 +147,12 @@ export default function RestaurantsPage() {
                   checked={switchCheck}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     setChecked(e.target.checked);
-                    customNavigate(
-                      "showFriends",
-                      e.target.checked,
-                      location.search,
-                      navigate
-                    );
+                    if (e.target.checked) {
+                      searchParams.set("showFriends", "true");
+                    } else {
+                      searchParams.delete("showFriends");
+                    }
+                    setSearchParams(searchParams);
                   }}
                 />
               }
