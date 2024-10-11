@@ -117,10 +117,10 @@ model ThemePark {
 }
 
 model ThemeParkVisit {
-  id String @id @default(cuid())
-
-  start DateTime @default(now())
-  end   DateTime @default(now())
+  id             String    @id @default(cuid())
+  dayTicketPrice Float?
+  start          DateTime  @default(now())
+  end            DateTime?
 
   users User[]
 
