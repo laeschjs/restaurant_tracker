@@ -55,6 +55,18 @@ export default function Index() {
           >
             New Visit
           </NavLink>
+          {isAdmin && (
+            <NavLink
+              to="admin"
+              className={({ isActive }) =>
+                `block border-b border-black p-4 text-xl hover:bg-purple-200 ${
+                  isActive ? "bg-pink-400 text-blue-100 hover:bg-pink-400" : ""
+                }`
+              }
+            >
+              Admin View
+            </NavLink>
+          )}
         </div>
         <ol className="col-span-3">
           <div>{hello}</div>
