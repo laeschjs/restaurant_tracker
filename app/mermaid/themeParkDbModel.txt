@@ -1,6 +1,6 @@
 classDiagram
     class Popularity {
-        type: high|med|low
+        type: high|medium|low
         low_range: number
         mid_range: number
         high_range: number
@@ -16,7 +16,7 @@ classDiagram
     ThemePark <|-- ThemeParkVisit
     class Activity {
         name: string
-        type: ride|character|restaraunt
+        type: ride|character|restaraunt|show|parade
         height?: number
     }
     Popularity <|-- Activity
