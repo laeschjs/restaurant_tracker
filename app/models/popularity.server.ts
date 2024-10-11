@@ -2,6 +2,10 @@ import { prisma } from "~/db.server";
 
 import type { Popularity } from "@prisma/client";
 
+export function getPopularities() {
+  return prisma.popularity.findMany();
+}
+
 export async function createPopularity({
   type,
   lowRange,
