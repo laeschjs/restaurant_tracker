@@ -45,6 +45,16 @@ export default function Index() {
       </header>
       <main className="h-full grid-cols-4 bg-gray-100 sm:grid">
         <div className="col-span-1 border-r border-black">
+          <NavLink
+            to="new_visit"
+            className={({ isActive }) =>
+              `block border-b border-black p-4 text-xl hover:bg-purple-200 ${
+                isActive ? "bg-pink-400 text-blue-100 hover:bg-pink-400" : ""
+              }`
+            }
+          >
+            New Visit
+          </NavLink>
         </div>
         <ol className="col-span-3">
           <div>{hello}</div>
