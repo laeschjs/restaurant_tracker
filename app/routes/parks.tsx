@@ -1,5 +1,5 @@
 import { json } from "@remix-run/node";
-import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import { Form, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import Grid from "@mui/material/Unstable_Grid2";
 import { useUser } from "~/utils";
 
