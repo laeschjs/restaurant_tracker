@@ -1,0 +1,34 @@
+classDiagram
+    class Popularity {
+        type: high|medium|low
+        low_range: number
+        mid_range: number
+        high_range: number
+    }
+    class ThemePark {
+        name: string
+    }
+    class ThemeParkVisit {
+        start: DateTime
+        end: DateTime
+        day_ticket_price: number
+    }
+    ThemePark <|-- ThemeParkVisit
+    class Activity {
+        name: string
+        type: ride|character|restaraunt|show|parade
+        height?: number
+    }
+    Popularity <|-- Activity
+    ThemePark <|-- Activity
+    class ActivityAction {
+        claimed_wait?: number
+        actual_wait?: number
+    }
+    Activity <|-- ActivityAction
+    ThemeParkVisit <|-- ActivityAction
+    class RainPeriod {
+        start: DateTime
+        end: DateTime
+    }
+    ThemeParkVisit <|-- RainPeriod

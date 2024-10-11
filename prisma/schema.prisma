@@ -20,6 +20,9 @@ model User {
   friends FriendMapper[] @relation("FriendPointer")
   selves  FriendMapper[] @relation("SelfPointer")
   meals   Meal[]
+
+  height          Int?
+  themeParkVisits ThemeParkVisit[]
 }
 
 model Password {
@@ -103,4 +106,73 @@ model MealExtra {
 
   meal   Meal   @relation(fields: [mealId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   mealId String
+}
+
+model ThemePark {
+  id   String @id @default(cuid())
+  name String @unique
+
+  activities      Activity[]
+  themeParkVisits ThemeParkVisit[]
+}
+
+model ThemeParkVisit {
+  id String @id @default(cuid())
+
+  start DateTime @default(now())
+  end   DateTime @default(now())
+
+  users User[]
+
+  themePark   ThemePark @relation(fields: [themeParkId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  themeParkId String
+
+  activityActions ActivityAction[]
+  rainPeriods     RainPeriod[]
+}
+
+model RainPeriod {
+  id String @id @default(cuid())
+
+  start DateTime
+  end   DateTime
+
+  themeParkVisitId String
+  themeParkVisit   ThemeParkVisit @relation(fields: [themeParkVisitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Popularity {
+  id        String @id @default(cuid())
+  type      String
+  lowRange  Int
+  midRange  Int
+  highRange Int
+
+  activities Activity[]
+}
+
+model Activity {
+  id   String @id @default(cuid())
+  name String @unique
+  type String
+
+  themeParkId String
+  themePark   ThemePark @relation(fields: [themeParkId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  popularityId String
+  popularity   Popularity @relation(fields: [popularityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  actions ActivityAction[]
+}
+
+model ActivityAction {
+  id          String @id @default(cuid())
+  claimedWait Int?
+  actualWait  Int?
+
+  activity   Activity @relation(fields: [activityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  activityId String
+
+  themeParkVisit   ThemeParkVisit @relation(fields: [themeParkVisitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  themeParkVisitId String
 }
