@@ -1,15 +1,8 @@
-import { json } from "@remix-run/node";
-import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import { Form, Link, NavLink, Outlet } from "@remix-run/react";
 import Grid from "@mui/material/Unstable_Grid2"; // TODO: Update mui to v6 and change Unstable_Grid2 to Grid2
 import { useUser } from "~/utils";
 
-export async function loader() {
-  return json({ hello: "world" });
-}
-
 export default function Index() {
-  const { hello } = useLoaderData();
-
   const user = useUser();
   const isAdmin =
     user.email === "test@test.com" ||
@@ -72,7 +65,6 @@ export default function Index() {
           )}
         </div>
         <ol className="col-span-3">
-          <div>{hello}</div>
           <Outlet />
         </ol>
       </main>
