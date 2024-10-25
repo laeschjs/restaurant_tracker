@@ -1,6 +1,18 @@
-import { Form, Link, NavLink, Outlet } from "@remix-run/react";
+import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import { json } from "@remix-run/node";
 import Grid from "@mui/material/Unstable_Grid2"; // TODO: Update mui to v6 and change Unstable_Grid2 to Grid2
+
 import { useUser } from "~/utils";
+import { requireUserId } from "~/session.server";
+import { getActiveThemeParkVisits } from "~/models/themeParkVisit.server";
+
+import type { LoaderArgs } from "@remix-run/node";
+
+export async function loader({ request }: LoaderArgs) {
+  const userId = await requireUserId(request);
+  const visits = await getActiveThemeParkVisits({ userId });
+  return json({ activeVisit: visits[0] }); // There should only be one active visit
+}
 
 export default function Index() {
   const user = useUser();
@@ -8,6 +20,7 @@ export default function Index() {
     user.email === "test@test.com" ||
     user.email === "joshua.laesch@gmail.com" ||
     user.email === "kylielaesch@gmail.com";
+  const { activeVisit } = useLoaderData();
 
   return (
     <div className="flex h-full min-h-screen flex-col">
@@ -42,7 +55,7 @@ export default function Index() {
       <main className="h-full grid-cols-4 bg-gray-100 sm:grid">
         <div className="col-span-1 border-r border-black">
           <NavLink
-            to="new_visit"
+            to={activeVisit ? `new_visit/${activeVisit.id}` : "new_visit"}
             className={({ isActive }) =>
               `block border-b border-black p-4 text-xl hover:bg-purple-200 ${
                 isActive ? "bg-pink-400 text-blue-100 hover:bg-pink-400" : ""

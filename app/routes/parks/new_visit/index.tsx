@@ -99,9 +99,6 @@ export default function Index() {
     },
   ];
 
-  // TODO: Once a visit has been started (no departure date), then this is the page that
-  // auto loads and the other pages are not accessible until the visit is completed.
-
   const currentPiece = flowPieces[pieceIndex];
   return (
     <div className="min-h-screen sm:flex sm:items-center sm:justify-center">

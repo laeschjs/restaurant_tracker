@@ -24,3 +24,12 @@ export async function createThemeParkVisit({
     },
   });
 }
+
+export async function getActiveThemeParkVisits({ userId }: { userId: string }) {
+  return await prisma.themeParkVisit.findMany({
+    where: {
+      end: null,
+      users: { some: { id: userId } },
+    },
+  });
+}
