@@ -1,6 +1,6 @@
 import { json } from "@remix-run/node";
 import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
-import Grid from "@mui/material/Unstable_Grid2";
+import Grid from "@mui/material/Unstable_Grid2"; // TODO: Update mui to v6 and change Unstable_Grid2 to Grid2
 import { useUser } from "~/utils";
 
 export async function loader() {
