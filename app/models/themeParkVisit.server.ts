@@ -33,3 +33,16 @@ export async function getActiveThemeParkVisits({ userId }: { userId: string }) {
     },
   });
 }
+
+export async function endThemeParkVisit({
+  id,
+  endTime,
+}: {
+  id: string;
+  endTime: Date;
+}) {
+  return await prisma.themeParkVisit.update({
+    where: { id },
+    data: { end: endTime },
+  });
+}
