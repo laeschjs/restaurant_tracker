@@ -34,6 +34,12 @@ export async function getActiveThemeParkVisits({ userId }: { userId: string }) {
   });
 }
 
+export async function getThemeParkVisit({ visitId }: { visitId: string }) {
+  return await prisma.themeParkVisit.findUnique({
+    where: { id: visitId },
+  });
+}
+
 export async function endThemeParkVisit({
   id,
   endTime,
