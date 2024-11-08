@@ -3,6 +3,8 @@ import Grid from "@mui/material/Unstable_Grid2";
 
 import { useUser } from "~/utils";
 
+// TODO: Update routing structure from /app to /restaurants
+
 export default function RestaurantsPage() {
   const user = useUser();
   const isAdmin =

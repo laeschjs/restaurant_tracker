@@ -2,6 +2,12 @@ import { prisma } from "~/db.server";
 
 import type { Activity } from "@prisma/client";
 
+export function getActivities({ themeParkId }: { themeParkId: string }) {
+  return prisma.activity.findMany({
+    where: { themeParkId },
+  });
+}
+
 export async function createActivity({
   name,
   type,

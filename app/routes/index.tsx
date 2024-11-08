@@ -1,8 +1,20 @@
-import { Form, Link } from "@remix-run/react";
+import { Form, Link, useLoaderData } from "@remix-run/react";
+import { json } from "@remix-run/node";
 
+import { getActiveThemeParkVisits } from "~/models/themeParkVisit.server";
+import { requireUserId } from "~/session.server";
 import { useOptionalUser } from "~/utils";
 
+import type { LoaderArgs } from "@remix-run/node";
+
+export async function loader({ request }: LoaderArgs) {
+  const userId = await requireUserId(request);
+  const visits = await getActiveThemeParkVisits({ userId });
+  return json({ activeVisit: visits[0] }); // There should only be one active visit
+}
+
 export default function Index() {
+  const { activeVisit } = useLoaderData();
   const user = useOptionalUser();
   return (
     <main className="min-h-screen bg-sky-300 px-3 pt-3 sm:flex sm:items-center sm:justify-center">
@@ -23,7 +35,11 @@ export default function Index() {
                   Restaurant Tracker
                 </Link>
                 <Link
-                  to="/parks"
+                  to={
+                    activeVisit
+                      ? `/parks/new_visit/${activeVisit.id}`
+                      : "/parks"
+                  }
                   className="mt-2 flex justify-center rounded-md bg-pink-400 px-4 py-3 font-medium text-white hover:bg-pink-600 sm:mt-0 sm:mr-3"
                 >
                   Theme Park Tracker
