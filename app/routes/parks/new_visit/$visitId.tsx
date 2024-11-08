@@ -3,6 +3,7 @@ import { json, redirect } from "@remix-run/node";
 import { useState } from "react";
 import dayjs from "dayjs";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import TextField from "@mui/material/TextField";
 import Alert from "@mui/joy/Alert";
 import Sheet from "@mui/joy/Sheet";
@@ -16,6 +17,7 @@ import {
 } from "~/models/themeParkVisit.server";
 import { getActivities } from "~/models/activity.server";
 import { createActivityAction } from "~/models/activityAction.server";
+import { createRainPeriod } from "~/models/rainPeriod.server";
 
 import type { Dayjs } from "dayjs";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
@@ -63,6 +65,13 @@ export async function action({ params, request }: ActionArgs) {
         actualWait: parseInt(`${values.actualWaitTime}`),
       });
       return json({ message: `Activity added` });
+    case "addRainPeriod":
+      await createRainPeriod({
+        themeParkVisitId: params.visitId!,
+        start: new Date(`${values.rainStart}`),
+        end: new Date(`${values.rainEnd}`),
+      });
+      return json({ message: `Rain period added` });
     default:
       return json({ message: `Nothing happened` });
   }
@@ -72,6 +81,8 @@ export default function VisitInProgress() {
   const { activities } = useLoaderData();
   const actionData = useActionData();
   const [endTime, setEndTime] = useState<Dayjs | null>(dayjs());
+  const [rainStartTime, setRainStartTime] = useState<Dayjs | null>(dayjs());
+  const [rainEndTime, setRainEndTime] = useState<Dayjs | null>(dayjs());
   const [selectedActivityId, setSelectedActivityId] = useState<string | null>(
     null
   );
@@ -154,6 +165,46 @@ export default function VisitInProgress() {
           className="w-full rounded bg-sky-500 py-2 px-4 text-white hover:bg-sky-600 focus:bg-sky-400"
         >
           Add Activity
+        </button>
+      </Sheet>
+      <Sheet sx={SHEET_STYLES}>
+        <label className="my-3 flex grid grid-cols-4 items-center gap-1">
+          <span className="col-span-1">Rain Start:</span>
+          <TimePicker
+            className="col-span-3"
+            value={rainStartTime}
+            onChange={(newValue) => setRainStartTime(newValue)}
+            disableFuture
+          />
+          <input
+            className="hidden"
+            name="rainStart"
+            value={rainStartTime?.toISOString()}
+            onChange={() => ""}
+          />
+        </label>
+        <label className="my-3 flex grid grid-cols-4 items-center gap-1">
+          <span className="col-span-1">Rain End:</span>
+          <TimePicker
+            className="col-span-3"
+            value={rainEndTime}
+            onChange={(newValue) => setRainEndTime(newValue)}
+            disableFuture
+          />
+          <input
+            className="hidden"
+            name="rainEnd"
+            value={rainEndTime?.toISOString()}
+            onChange={() => ""}
+          />
+        </label>
+        <button
+          type="submit"
+          name="controlFlow"
+          value="addRainPeriod"
+          className="w-full rounded bg-sky-500 py-2 px-4 text-white hover:bg-sky-600 focus:bg-sky-400"
+        >
+          Add Rain Period
         </button>
       </Sheet>
     </form>
