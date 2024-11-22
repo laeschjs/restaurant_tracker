@@ -1,52 +1,31 @@
 import { useState } from "react";
-import { json, redirect } from "@remix-run/node";
-import { useLoaderData, useNavigate } from "@remix-run/react";
+import { useNavigate } from "@remix-run/react";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 
-import { useMealFromContext } from "../meals";
-import { getRestaurants } from "~/models/restaurant.server";
-import MealForm from "~/components/MealForm";
-import { requireUserId } from "~/session.server";
-import { editMeal } from "~/models/meal.server";
+import MealForm from "./MealForm";
 
-import type { LoaderArgs, ActionArgs } from "@remix-run/node";
+import type { Restaurant, Meal, MealExtra } from "@prisma/client";
 
-enum MealExtraLabel {
+interface MealIndexPanelProps {
+  restaurants: Restaurant[];
+  meal: Meal & { restaurant: Restaurant; extras: MealExtra[] };
+}
+
+export enum MealExtraLabel {
   entree = "Entree",
   appetizer = "Appetizer",
   drink = "Drink",
   dessert = "Dessert",
 }
 
-export async function loader({ request }: LoaderArgs) {
-  const restaurants = await getRestaurants();
-  return json({ restaurants });
-}
-
-export async function action({ request }: ActionArgs) {
-  const userId = await requireUserId(request);
-
-  const formData = await request.formData();
-
-  await editMeal({
-    id: `${formData.get("mealId")}`,
-    reservation: formData.get("reservation") === "on",
-    queueTime: parseInt(`${formData.get("queueTime")}`) || 0,
-    restaurantId: `${formData.get("new_restaurant")}`,
-    userId,
-    eatenAt: new Date(`${formData.get("eatenAt")}`),
-  });
-
-  return redirect("/app/meals");
-}
-
-export default function Index() {
-  const { meal } = useMealFromContext();
-  const { restaurants } = useLoaderData<typeof loader>();
+export default function MealIndexPanel({
+  restaurants,
+  meal,
+}: MealIndexPanelProps) {
   const navigate = useNavigate();
   const [editMode, setEditMode] = useState<boolean>(false);
   if (editMode) {
