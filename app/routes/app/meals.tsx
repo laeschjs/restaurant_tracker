@@ -9,9 +9,11 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Grid from "@mui/material/Unstable_Grid2";
 import dayjs from "dayjs";
 import { capitalize } from "@mui/material";
+import qs from "qs";
 
 import type { Meal, MealExtra, Restaurant } from "@prisma/client";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { MealExtraParam } from "~/models/meal.server";
 
 import { requireUserId } from "~/session.server";
 import { getMeals, editMeal } from "~/models/meal.server";
@@ -77,15 +79,17 @@ export async function loader({ request }: LoaderArgs) {
 export async function action({ request }: ActionArgs) {
   const userId = await requireUserId(request);
 
-  const formData = await request.formData();
+  const text = await request.text();
+  const values = qs.parse(text);
 
   await editMeal({
-    id: `${formData.get("mealId")}`,
-    reservation: formData.get("reservation") === "on",
-    queueTime: parseInt(`${formData.get("queueTime")}`) || 0,
-    restaurantId: `${formData.get("new_restaurant")}`,
+    id: `${values.mealId}`,
+    reservation: values.reservation === "on",
+    queueTime: parseInt(`${values.queueTime}`) || 0,
+    restaurantId: `${values.new_restaurant}`,
     userId,
-    eatenAt: new Date(`${formData.get("eatenAt")}`),
+    eatenAt: new Date(`${values.eatenAt}`),
+    extras: (values.extras || []) as unknown as MealExtraParam[],
   });
 
   return redirect("/app/meals");

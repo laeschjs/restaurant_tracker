@@ -15,7 +15,7 @@ interface MealIndexPanelProps {
   meal: Meal & { restaurant: Restaurant; extras: MealExtra[] };
 }
 
-enum MealExtraLabel {
+export enum MealExtraLabel {
   entree = "Entree",
   appetizer = "Appetizer",
   drink = "Drink",

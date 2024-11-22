@@ -131,7 +131,9 @@ export default function MealForm({
                 name={`extras[${index}][type]`}
                 options={extraOptions}
                 className="col-span-3"
-                defaultInputValue={extra.type}
+                defaultValue={extraOptions.find(
+                  (option) => option.value === extra.type
+                )}
               />
             </label>
             <label className="my-3 flex grid grid-cols-4 items-center gap-1">

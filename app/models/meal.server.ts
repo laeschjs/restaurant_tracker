@@ -88,27 +88,25 @@ export async function createMeal({
       },
     },
   });
-  for (const extra of extras) {
-    await prisma.mealExtra.create({
-      data: {
-        ...extra,
-        rating: parseInt(extra.rating),
-        cost: parseFloat(extra.cost),
-        mealId: meal.id,
-      },
-    });
-  }
+  await createExtras(extras, meal.id);
 }
 
-export function editMeal({
+export async function editMeal({
   id,
   reservation,
   queueTime,
   restaurantId,
   userId,
   eatenAt,
-}: Meal) {
-  return prisma.meal.update({
+  extras,
+}: Meal & { extras: MealExtraParam[] }) {
+  await prisma.mealExtra.deleteMany({
+    where: {
+      mealId: id,
+    },
+  });
+  await createExtras(extras, id);
+  await prisma.meal.update({
     where: {
       id,
     },
@@ -136,4 +134,17 @@ export function deleteMeal(id: Meal["id"]) {
       id,
     },
   });
+}
+
+async function createExtras(extras: MealExtraParam[], mealId: string) {
+  for (const extra of extras) {
+    await prisma.mealExtra.create({
+      data: {
+        ...extra,
+        rating: parseInt(extra.rating),
+        cost: parseFloat(extra.cost),
+        mealId,
+      },
+    });
+  }
 }
