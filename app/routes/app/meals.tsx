@@ -1,4 +1,4 @@
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import { Outlet, useLoaderData, useSearchParams } from "@remix-run/react";
 import { Disclosure } from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -7,19 +7,19 @@ import Select from "react-select";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Grid from "@mui/material/Unstable_Grid2";
-import { useOutletContext } from "react-router-dom";
 import dayjs from "dayjs";
 import { capitalize } from "@mui/material";
 
 import type { Meal, MealExtra, Restaurant } from "@prisma/client";
-import type { LoaderArgs } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 
 import { requireUserId } from "~/session.server";
-import { getMeals } from "~/models/meal.server";
+import { getMeals, editMeal } from "~/models/meal.server";
 import { getCuisines } from "~/models/cuisine.server";
 import { getRestaurants } from "~/models/restaurant.server";
+import MealIndexPanel from "~/components/MealIndexPanel";
 
-type ContextType = {
+export type MealContextType = {
   meal: Meal & { restaurant: Restaurant; extras: MealExtra[] };
 };
 
@@ -70,11 +70,25 @@ export async function loader({ request }: LoaderArgs) {
     filterType,
     mealListItems,
     userId,
+    restaurants,
   });
 }
 
-export function useMealFromContext() {
-  return useOutletContext<ContextType>();
+export async function action({ request }: ActionArgs) {
+  const userId = await requireUserId(request);
+
+  const formData = await request.formData();
+
+  await editMeal({
+    id: `${formData.get("mealId")}`,
+    reservation: formData.get("reservation") === "on",
+    queueTime: parseInt(`${formData.get("queueTime")}`) || 0,
+    restaurantId: `${formData.get("new_restaurant")}`,
+    userId,
+    eatenAt: new Date(`${formData.get("eatenAt")}`),
+  });
+
+  return redirect("/app/meals");
 }
 
 export default function RestaurantsPage() {
@@ -177,7 +191,10 @@ export default function RestaurantsPage() {
                     <span>{dayjs(eatenAt).format("L LT")}</span>
                   </Disclosure.Button>
                   <Disclosure.Panel className="px-4 pt-4 pb-2 text-gray-500">
-                    <Outlet context={{ meal }} />
+                    <MealIndexPanel
+                      meal={{ ...meal, eatenAt }}
+                      restaurants={data.restaurants}
+                    />
                   </Disclosure.Panel>
                 </>
               )}
@@ -185,6 +202,7 @@ export default function RestaurantsPage() {
           </li>
         );
       })}
+      <Outlet />
     </>
   );
 }
