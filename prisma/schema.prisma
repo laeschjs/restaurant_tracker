@@ -23,8 +23,6 @@ model User {
 
   height          Int?
   themeParkVisits ThemeParkVisit[]
-
-  seventyFiveHardChallenges SeventyFiveHardChallenge[]
 }
 
 model Password {
@@ -177,32 +175,4 @@ model ActivityAction {
 
   themeParkVisit   ThemeParkVisit @relation(fields: [themeParkVisitId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   themeParkVisitId String
-}
-
-model SeventyFiveHardChallenge {
-  id String @id @default(cuid())
-
-  startDate DateTime
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String
-
-  dailyEntries SeventyFiveHardDailyEntry[]
-}
-
-model SeventyFiveHardDailyEntry {
-  id String @id @default(cuid())
-
-  challenge   SeventyFiveHardChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  challengeId String
-
-  date DateTime
-
-  weight         Float?
-  drankWater     Boolean
-  indoorWorkout  Boolean
-  outdoorWorkout Boolean
-  readTenPages   Boolean
-  followedDiet   Boolean
-  imageTaken     Boolean
 }
