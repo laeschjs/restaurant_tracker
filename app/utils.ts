@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import type { Prisma } from "@prisma/client";
 
 import type { User } from "~/models/user.server";
+import { Dayjs } from "dayjs";
 
 const DEFAULT_REDIRECT = "/";
 
@@ -99,4 +100,8 @@ export function makeOptions(
     }
     return { label: obj.name, value, obj: obj };
   };
+}
+
+export function formatDate(date: Dayjs) {
+  return date.format("YYYY-MM-DD");
 }
