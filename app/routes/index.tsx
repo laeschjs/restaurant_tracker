@@ -44,24 +44,14 @@ export default function Index() {
                 >
                   Theme Park Tracker
                 </Link>
-                <Form
-                  action="/logout"
-                  method="post"
-                  className="mt-2 sm:mt-0 sm:mr-3"
-                >
+                <Form action="/logout" method="post">
                   <button
                     type="submit"
-                    className="flex w-full justify-center rounded-md bg-slate-600 py-3 px-4 font-medium text-white hover:bg-sky-300"
+                    className="mt-2 flex w-full justify-center rounded-md bg-slate-600 py-3 px-4 font-medium text-white hover:bg-sky-300 sm:mt-0"
                   >
                     Logout
                   </button>
                 </Form>
-                <Link
-                  to="/seventy_five_hard"
-                  className="mt-2 flex justify-center rounded-md bg-red-400 px-4 py-3 font-medium text-white hover:bg-red-600 sm:mt-0"
-                >
-                  75 Hard
-                </Link>
               </>
             ) : (
               <div className="space-y-4 sm:mx-auto sm:inline-grid sm:grid-cols-2 sm:gap-5 sm:space-y-0">

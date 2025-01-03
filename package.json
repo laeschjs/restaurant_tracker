@@ -37,7 +37,6 @@
     "@fortawesome/free-solid-svg-icons": "^6.2.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@headlessui/react": "^1.7.7",
-    "@mui/icons-material": "^6.3.1",
     "@mui/joy": "^5.0.0-beta.48",
     "@mui/material": "^5.11.13",
     "@mui/x-date-pickers": "^6.2.0",
