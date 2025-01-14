@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import type { Prisma } from "@prisma/client";
 
 import type { User } from "~/models/user.server";
-import { Dayjs } from "dayjs";
+import type { Dayjs } from "dayjs";
 
 const DEFAULT_REDIRECT = "/";
 
