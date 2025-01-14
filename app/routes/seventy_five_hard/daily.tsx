@@ -116,7 +116,7 @@ export default function Daily() {
           </div>
         </label>
         <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
-          <span>Outdoor Workout:</span>
+          <span>Progress Pic:</span>
           <div>
             No
             <Switch
