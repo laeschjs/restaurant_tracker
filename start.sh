@@ -19,5 +19,5 @@ set -ex
 # memory back to 256:
 # > flyctl machine update <machine_id> --vm-memory 256
 # It sucks but such is life.
-npx prisma migrate deploy
+npx prisma@5.5.2 migrate deploy
 npm run start
