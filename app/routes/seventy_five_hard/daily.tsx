@@ -3,7 +3,6 @@ import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { Button, Sheet } from "@mui/joy";
 import Alert from "@mui/joy/Alert";
 import { Switch, TextField } from "@mui/material";
-import dayjs from "dayjs";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 
@@ -16,6 +15,7 @@ import {
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import type { SeventyFiveHardDailyEntry } from "@prisma/client";
 import { ClientOnly } from "remix-utils";
+import { getDateStringWithoutTimezone } from "~/utils";
 
 export async function loader({ request }: LoaderArgs) {
   const userId = await requireUserId(request);
@@ -48,7 +48,8 @@ export default function Daily() {
   const actionData = useActionData();
   const entry = challenge.dailyEntries.find(
     (entry: SeventyFiveHardDailyEntry) =>
-      dayjs(entry.date).isSame(dayjs(), "day")
+      getDateStringWithoutTimezone(new Date(entry.date)) ===
+      getDateStringWithoutTimezone(new Date())
   );
 
   // TODO: either add a message or redirect if they go to this route and the current date is not in the challenge
@@ -76,7 +77,11 @@ export default function Daily() {
           <Form method="post">
             <input type="hidden" name="entryId" value={entry?.id} />
             <input type="hidden" name="challengeId" value={challenge.id} />
-            <input type="hidden" name="date" value={dayjs().toISOString()} />
+            <input
+              type="hidden"
+              name="date"
+              value={new Date().toDateString()}
+            />
             <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
               <span>Weight:</span>
               <TextField name="weight" defaultValue={entry?.weight} />
