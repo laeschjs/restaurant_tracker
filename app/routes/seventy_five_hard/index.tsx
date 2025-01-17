@@ -72,17 +72,21 @@ export default function Index() {
   }
 
   const accomplishedDays: SeventyFiveHardDailyEntry[] =
-    challenge.dailyEntries.filter((entry: SeventyFiveHardDailyEntry) => {
-      return (
-        Boolean(entry.weight) &&
-        entry.drankWater &&
-        entry.indoorWorkout &&
-        entry.outdoorWorkout &&
-        entry.readTenPages &&
-        entry.followedDiet &&
-        entry.imageTaken
-      );
-    });
+    challenge.dailyEntries.filter(
+      (entry: SeventyFiveHardDailyEntry, index: number) => {
+        console.log("josh001", index, entry);
+        return (
+          Boolean(entry.weight) &&
+          entry.drankWater &&
+          entry.indoorWorkout &&
+          entry.outdoorWorkout &&
+          entry.readTenPages &&
+          entry.followedDiet &&
+          entry.imageTaken
+        );
+      }
+    );
+  console.log("josh002", dayjs().toISOString());
   return (
     <ClientOnly>
       {() => (
