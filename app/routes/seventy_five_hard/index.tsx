@@ -5,7 +5,6 @@ import { ClientOnly } from "remix-utils";
 import { Button, Sheet, Typography } from "@mui/joy";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DateCalendar, DayCalendarSkeleton } from "@mui/x-date-pickers";
-import dayjs from "dayjs";
 
 import CalendarDate from "~/components/CalendarDate";
 import { requireUserId } from "~/session.server";
@@ -15,9 +14,8 @@ import {
 } from "~/models/seventyFiveHard";
 
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
-import type { Dayjs } from "dayjs";
 import type { SeventyFiveHardDailyEntry } from "@prisma/client";
-import { formatDate } from "~/utils";
+import { getDateStringWithoutTimezone } from "~/utils";
 
 export async function loader({ request }: LoaderArgs) {
   const userId = await requireUserId(request);
@@ -37,7 +35,7 @@ export async function action({ request }: ActionArgs) {
 
 export default function Index() {
   const { challenge } = useLoaderData();
-  const [startDate, setStartDate] = useState<Dayjs | null>(dayjs());
+  const [startDate, setStartDate] = useState<Date | null>(new Date());
   if (!challenge) {
     return (
       <Sheet
@@ -59,7 +57,7 @@ export default function Index() {
             <input
               className="hidden"
               name="startDate"
-              value={startDate?.toISOString()}
+              value={startDate?.toDateString()}
               onChange={() => ""}
             />
             <Button type="submit" color="success" size="lg" className="block">
@@ -74,7 +72,6 @@ export default function Index() {
   const accomplishedDays: SeventyFiveHardDailyEntry[] =
     challenge.dailyEntries.filter(
       (entry: SeventyFiveHardDailyEntry, index: number) => {
-        console.log("josh001", index, entry);
         return (
           Boolean(entry.weight) &&
           entry.drankWater &&
@@ -86,7 +83,6 @@ export default function Index() {
         );
       }
     );
-  console.log("josh002", dayjs().toISOString());
   return (
     <ClientOnly>
       {() => (
@@ -99,10 +95,10 @@ export default function Index() {
           }}
           slotProps={{
             day: {
-              startDate: dayjs(challenge.startDate),
+              startDate: new Date(challenge.startDate),
               accomplishedDays: accomplishedDays.map(
                 (entry: SeventyFiveHardDailyEntry) =>
-                  formatDate(dayjs(entry.date))
+                  getDateStringWithoutTimezone(new Date(entry.date))
               ),
             } as any,
           }}
