@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { json } from "@remix-run/node";
 import { Form, useLoaderData } from "@remix-run/react";
+import { ClientOnly } from "remix-utils";
 import { Button, Sheet, Typography } from "@mui/joy";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DateCalendar, DayCalendarSkeleton } from "@mui/x-date-pickers";
@@ -83,21 +84,26 @@ export default function Index() {
       );
     });
   return (
-    <DateCalendar
-      renderLoading={() => <DayCalendarSkeleton />}
-      views={["day"]}
-      disabled
-      slots={{
-        day: CalendarDate,
-      }}
-      slotProps={{
-        day: {
-          startDate: dayjs(challenge.startDate),
-          accomplishedDays: accomplishedDays.map(
-            (entry: SeventyFiveHardDailyEntry) => formatDate(dayjs(entry.date))
-          ),
-        } as any,
-      }}
-    />
+    <ClientOnly>
+      {() => (
+        <DateCalendar
+          renderLoading={() => <DayCalendarSkeleton />}
+          views={["day"]}
+          disabled
+          slots={{
+            day: CalendarDate,
+          }}
+          slotProps={{
+            day: {
+              startDate: dayjs(challenge.startDate),
+              accomplishedDays: accomplishedDays.map(
+                (entry: SeventyFiveHardDailyEntry) =>
+                  formatDate(dayjs(entry.date))
+              ),
+            } as any,
+          }}
+        />
+      )}
+    </ClientOnly>
   );
 }
