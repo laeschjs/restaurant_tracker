@@ -1,7 +1,11 @@
 import { json } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { Button, Sheet } from "@mui/joy";
+import Alert from "@mui/joy/Alert";
+import { Switch, TextField } from "@mui/material";
 import dayjs from "dayjs";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 
 import { requireUserId } from "~/session.server";
 import {
@@ -11,7 +15,6 @@ import {
 
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import type { SeventyFiveHardDailyEntry } from "@prisma/client";
-import { Switch, TextField } from "@mui/material";
 
 export async function loader({ request }: LoaderArgs) {
   const userId = await requireUserId(request);
@@ -24,6 +27,7 @@ export async function action({ request }: ActionArgs) {
   const data = Object.fromEntries(formData);
 
   await createOrUpdateDailyEntry({
+    id: `${data.entryId}`,
     challengeId: `${data.challengeId}`,
     date: new Date(`${data.date}`),
     weight: parseFloat(`${data.weight}`),
@@ -35,11 +39,12 @@ export async function action({ request }: ActionArgs) {
     imageTaken: data.imageTaken === "on",
   });
 
-  return null;
+  return { message: "Entry updated successfully!", success: true };
 }
 
 export default function Daily() {
   const { challenge } = useLoaderData();
+  const actionData = useActionData();
   const entry = challenge.dailyEntries.find(
     (entry: SeventyFiveHardDailyEntry) =>
       dayjs(entry.date).isSame(dayjs(), "day")
@@ -53,7 +58,18 @@ export default function Daily() {
       variant="outlined"
       className="m-5 rounded-md p-5 text-center sm:mx-auto"
     >
+      {actionData && actionData.success && (
+        <Alert
+          color="success"
+          variant="solid"
+          className="my-5"
+          startDecorator={<FontAwesomeIcon icon={faCircleCheck} size="sm" />}
+        >
+          {actionData.message}
+        </Alert>
+      )}
       <Form method="post">
+        <input type="hidden" name="entryId" value={entry?.id} />
         <input type="hidden" name="challengeId" value={challenge.id} />
         <input type="hidden" name="date" value={dayjs().toISOString()} />
         <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
