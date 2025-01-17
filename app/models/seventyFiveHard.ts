@@ -3,7 +3,6 @@ import type {
   SeventyFiveHardDailyEntry,
   User,
 } from "@prisma/client";
-import dayjs from "dayjs";
 import { prisma } from "~/db.server";
 
 export async function getChallengesForUser({ userId }: { userId: User["id"] }) {
@@ -28,6 +27,7 @@ export async function createChallenge({
 }
 
 export async function createOrUpdateDailyEntry({
+  id,
   challengeId,
   date,
   weight,
@@ -37,32 +37,21 @@ export async function createOrUpdateDailyEntry({
   readTenPages,
   followedDiet,
   imageTaken,
-}: Omit<SeventyFiveHardDailyEntry, "id">) {
-  // TODO make challengeId and date combo unique so then this can be changed to upsert
-  const challengeEntries = await prisma.seventyFiveHardDailyEntry.findMany({
-    where: { challengeId },
-  });
-  const existingEntry = challengeEntries.find((entry) =>
-    dayjs(entry.date).isSame(dayjs(date), "day")
-  );
-  if (existingEntry) {
-    return prisma.seventyFiveHardDailyEntry.update({
-      where: { id: existingEntry.id },
-      data: {
-        weight,
-        drankWater,
-        indoorWorkout,
-        outdoorWorkout,
-        readTenPages,
-        followedDiet,
-        imageTaken,
-      },
-    });
-  }
-  return prisma.seventyFiveHardDailyEntry.create({
-    data: {
+}: SeventyFiveHardDailyEntry) {
+  return prisma.seventyFiveHardDailyEntry.upsert({
+    where: { id },
+    create: {
       challengeId,
       date,
+      weight,
+      drankWater,
+      indoorWorkout,
+      outdoorWorkout,
+      readTenPages,
+      followedDiet,
+      imageTaken,
+    },
+    update: {
       weight,
       drankWater,
       indoorWorkout,

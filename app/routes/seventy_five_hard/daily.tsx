@@ -27,6 +27,7 @@ export async function action({ request }: ActionArgs) {
   const data = Object.fromEntries(formData);
 
   await createOrUpdateDailyEntry({
+    id: `${data.entryId}`,
     challengeId: `${data.challengeId}`,
     date: new Date(`${data.date}`),
     weight: parseFloat(`${data.weight}`),
@@ -68,6 +69,7 @@ export default function Daily() {
         </Alert>
       )}
       <Form method="post">
+        <input type="hidden" name="entryId" value={entry?.id} />
         <input type="hidden" name="challengeId" value={challenge.id} />
         <input type="hidden" name="date" value={dayjs().toISOString()} />
         <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
