@@ -15,7 +15,6 @@ import {
 
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import type { SeventyFiveHardDailyEntry } from "@prisma/client";
-import { getDateStringWithoutTimezone } from "~/utils";
 
 export async function loader({ request }: LoaderArgs) {
   const userId = await requireUserId(request);
@@ -98,7 +97,7 @@ export default function Index() {
               startDate: new Date(challenge.startDate),
               accomplishedDays: accomplishedDays.map(
                 (entry: SeventyFiveHardDailyEntry) =>
-                  getDateStringWithoutTimezone(new Date(entry.date))
+                  new Date(entry.date).toDateString()
               ),
             } as any,
           }}
