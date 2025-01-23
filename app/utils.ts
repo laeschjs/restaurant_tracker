@@ -100,8 +100,3 @@ export function makeOptions(
     return { label: obj.name, value, obj: obj };
   };
 }
-
-export function getDateStringWithoutTimezone(date: Date): string {
-  const isoString = date.toISOString();
-  return isoString.slice(0, isoString.indexOf("T"));
-}

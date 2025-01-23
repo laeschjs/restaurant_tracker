@@ -1,8 +1,6 @@
 import { PickersDay } from "@mui/x-date-pickers";
 import { Badge } from "@mui/joy";
 
-import { getDateStringWithoutTimezone } from "~/utils";
-
 import type { Dayjs } from "dayjs";
 import type { PickersDayProps } from "@mui/x-date-pickers";
 
@@ -18,15 +16,14 @@ export default function CalendarDate(
   let badgeColor: "neutral" | "success" | "primary" = "neutral";
   let isStart = false;
   let isEnd = false;
-  const dateStringWithoutTimezone = getDateStringWithoutTimezone(day.toDate());
+  const dateStringWithoutTimezone = day.toDate().toDateString();
   const isAccomplished =
     accomplishedDays.indexOf(dateStringWithoutTimezone) >= 0;
   if (startDate) {
-    isStart =
-      getDateStringWithoutTimezone(startDate) === dateStringWithoutTimezone;
+    isStart = startDate.toDateString() === dateStringWithoutTimezone;
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + 74);
-    isEnd = getDateStringWithoutTimezone(endDate) === dateStringWithoutTimezone;
+    isEnd = endDate.toDateString() === dateStringWithoutTimezone;
   }
 
   if (isAccomplished) {
