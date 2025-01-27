@@ -5,6 +5,7 @@ import { ClientOnly } from "remix-utils";
 import { Button, Sheet, Typography } from "@mui/joy";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { DateCalendar, DayCalendarSkeleton } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
 
 import CalendarDate from "~/components/CalendarDate";
 import { requireUserId } from "~/session.server";
@@ -15,6 +16,7 @@ import {
 
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import type { SeventyFiveHardDailyEntry } from "@prisma/client";
+import type { Dayjs } from "dayjs";
 
 export async function loader({ request }: LoaderArgs) {
   const userId = await requireUserId(request);
@@ -34,7 +36,7 @@ export async function action({ request }: ActionArgs) {
 
 export default function Index() {
   const { challenge } = useLoaderData();
-  const [startDate, setStartDate] = useState<Date | null>(new Date());
+  const [startDate, setStartDate] = useState<Dayjs | null>(dayjs());
   if (!challenge) {
     return (
       <Sheet
@@ -56,7 +58,7 @@ export default function Index() {
             <input
               className="hidden"
               name="startDate"
-              value={startDate?.toDateString()}
+              value={startDate?.format("MM/DD/YYYY")}
               onChange={() => ""}
             />
             <Button type="submit" color="success" size="lg" className="block">

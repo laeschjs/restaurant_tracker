@@ -1,5 +1,8 @@
 import { json } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import { useEffect, useState } from "react";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
 import { Button, Sheet } from "@mui/joy";
 import Alert from "@mui/joy/Alert";
 import { Switch, TextField } from "@mui/material";
@@ -14,7 +17,7 @@ import {
 
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import type { SeventyFiveHardDailyEntry } from "@prisma/client";
-import { ClientOnly } from "remix-utils";
+import type { Dayjs } from "dayjs";
 
 export async function loader({ request }: LoaderArgs) {
   const userId = await requireUserId(request);
@@ -45,117 +48,157 @@ export async function action({ request }: ActionArgs) {
 export default function Daily() {
   const { challenge } = useLoaderData();
   const actionData = useActionData();
+  const [date, setDate] = useState<Dayjs | null>(dayjs());
   const entry = challenge.dailyEntries.find(
     (entry: SeventyFiveHardDailyEntry) =>
-      new Date(entry.date).toDateString() === new Date().toDateString()
+      dayjs(new Date(entry.date)).isSame(date, "day")
   );
+  const [weight, setWeight] = useState(entry?.weight ?? "");
+  const [drankWater, setDrankWater] = useState(entry?.drankWater ?? false);
+  const [indoorWorkout, setIndoorWorkout] = useState(
+    entry?.indoorWorkout ?? false
+  );
+  const [outdoorWorkout, setOutdoorWorkout] = useState(
+    entry?.outdoorWorkout ?? false
+  );
+  const [readTenPages, setReadTenPages] = useState(
+    entry?.readTenPages ?? false
+  );
+  const [followedDiet, setFollowedDiet] = useState(
+    entry?.followedDiet ?? false
+  );
+  const [imageTaken, setImageTaken] = useState(entry?.imageTaken ?? false);
+  useEffect(() => {
+    if (entry) {
+      setWeight(entry.weight);
+      setDrankWater(entry.drankWater);
+      setIndoorWorkout(entry.indoorWorkout);
+      setOutdoorWorkout(entry.outdoorWorkout);
+      setReadTenPages(entry.readTenPages);
+      setFollowedDiet(entry.followedDiet);
+      setImageTaken(entry.imageTaken);
+    } else {
+      setWeight("");
+      setDrankWater(false);
+      setIndoorWorkout(false);
+      setOutdoorWorkout(false);
+      setReadTenPages(false);
+      setFollowedDiet(false);
+      setImageTaken(false);
+    }
+  }, [entry]);
 
   // TODO: either add a message or redirect if they go to this route and the current date is not in the challenge
 
   return (
-    <ClientOnly>
-      {() => (
-        <Sheet
-          color="neutral"
-          variant="outlined"
-          className="m-5 rounded-md p-5 text-center sm:mx-auto"
+    <Sheet
+      color="neutral"
+      variant="outlined"
+      className="m-5 rounded-md p-5 text-center sm:mx-auto"
+    >
+      {actionData && actionData.success && (
+        <Alert
+          color="success"
+          variant="solid"
+          className="my-5"
+          startDecorator={<FontAwesomeIcon icon={faCircleCheck} size="sm" />}
         >
-          {actionData && actionData.success && (
-            <Alert
-              color="success"
-              variant="solid"
-              className="my-5"
-              startDecorator={
-                <FontAwesomeIcon icon={faCircleCheck} size="sm" />
-              }
-            >
-              {actionData.message}
-            </Alert>
-          )}
-          <Form method="post">
-            <input type="hidden" name="entryId" value={entry?.id} />
-            <input type="hidden" name="challengeId" value={challenge.id} />
-            <input
-              type="hidden"
-              name="date"
-              value={new Date().toDateString()}
-            />
-            <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
-              <span>Weight:</span>
-              <TextField name="weight" defaultValue={entry?.weight} />
-            </label>
-            <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
-              <span>Drank 1 Gal Water:</span>
-              <div>
-                No
-                <Switch
-                  name="drankWater"
-                  defaultChecked={entry?.drankWater ?? false}
-                />
-                Yes
-              </div>
-            </label>
-            <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
-              <span>Indoor Workout:</span>
-              <div>
-                No
-                <Switch
-                  name="indoorWorkout"
-                  defaultChecked={entry?.indoorWorkout ?? false}
-                />
-                Yes
-              </div>
-            </label>
-            <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
-              <span>Outdoor Workout:</span>
-              <div>
-                No
-                <Switch
-                  name="outdoorWorkout"
-                  defaultChecked={entry?.outdoorWorkout ?? false}
-                />
-                Yes
-              </div>
-            </label>
-            <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
-              <span>Read 10 Pages:</span>
-              <div>
-                No
-                <Switch
-                  name="readTenPages"
-                  defaultChecked={entry?.readTenPages ?? false}
-                />
-                Yes
-              </div>
-            </label>
-            <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
-              <span>Follow Diet:</span>
-              <div>
-                No
-                <Switch
-                  name="followedDiet"
-                  defaultChecked={entry?.followedDiet ?? false}
-                />
-                Yes
-              </div>
-            </label>
-            <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
-              <span>Progress Pic:</span>
-              <div>
-                No
-                <Switch
-                  name="imageTaken"
-                  defaultChecked={entry?.imageTaken ?? false}
-                />
-                Yes
-              </div>
-            </label>
-            <Button type="submit" color="success" size="lg" className="block">
-              Update
-            </Button>
-          </Form>
-        </Sheet>
+          {actionData.message}
+        </Alert>
       )}
-    </ClientOnly>
+      <Form method="post">
+        <input type="hidden" name="entryId" value={entry?.id} />
+        <input type="hidden" name="challengeId" value={challenge.id} />
+        <DatePicker
+          className="my-3"
+          value={date}
+          onChange={(newValue) => setDate(newValue)}
+        />
+        <input type="hidden" name="date" value={date?.format("MM/DD/YYYY")} />
+        <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
+          <span>Weight:</span>
+          <TextField
+            name="weight"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+          />
+        </label>
+        <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
+          <span>Drank 1 Gal Water:</span>
+          <div>
+            No
+            <Switch
+              name="drankWater"
+              checked={drankWater}
+              onChange={(e) => setDrankWater(e.target.checked)}
+            />
+            Yes
+          </div>
+        </label>
+        <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
+          <span>Indoor Workout:</span>
+          <div>
+            No
+            <Switch
+              name="indoorWorkout"
+              checked={indoorWorkout}
+              onChange={(e) => setIndoorWorkout(e.target.checked)}
+            />
+            Yes
+          </div>
+        </label>
+        <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
+          <span>Outdoor Workout:</span>
+          <div>
+            No
+            <Switch
+              name="outdoorWorkout"
+              checked={outdoorWorkout}
+              onChange={(e) => setOutdoorWorkout(e.target.checked)}
+            />
+            Yes
+          </div>
+        </label>
+        <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
+          <span>Read 10 Pages:</span>
+          <div>
+            No
+            <Switch
+              name="readTenPages"
+              checked={readTenPages}
+              onChange={(e) => setReadTenPages(e.target.checked)}
+            />
+            Yes
+          </div>
+        </label>
+        <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
+          <span>Follow Diet:</span>
+          <div>
+            No
+            <Switch
+              name="followedDiet"
+              checked={followedDiet}
+              onChange={(e) => setFollowedDiet(e.target.checked)}
+            />
+            Yes
+          </div>
+        </label>
+        <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
+          <span>Progress Pic:</span>
+          <div>
+            No
+            <Switch
+              name="imageTaken"
+              checked={imageTaken}
+              onChange={(e) => setImageTaken(e.target.checked)}
+            />
+            Yes
+          </div>
+        </label>
+        <Button type="submit" color="success" size="lg" className="block">
+          Update
+        </Button>
+      </Form>
+    </Sheet>
   );
 }
