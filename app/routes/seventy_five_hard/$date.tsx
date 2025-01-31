@@ -1,4 +1,4 @@
-import { json } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
 import {
   Form,
   useActionData,
@@ -24,7 +24,11 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import type { SeventyFiveHardDailyEntry } from "@prisma/client";
 import { useEffect, useState } from "react";
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request, params }: LoaderArgs) {
+  if (!params.date || !dayjs(params.date).isValid()) {
+    const today = dayjs(new Date()).format("MM-DD-YYYY");
+    return redirect(`../${today}`);
+  }
   const userId = await requireUserId(request);
   const challenges = await getChallengesForUser({ userId });
   return json({ challenge: challenges[0] });
@@ -53,9 +57,10 @@ export async function action({ request }: ActionArgs) {
 export default function Daily() {
   const { challenge } = useLoaderData();
   const actionData = useActionData();
-  const param = useParams();
+  const params = useParams();
   const navigate = useNavigate();
-  const date = dayjs(new Date(param.date || ""));
+  const date = dayjs(new Date(params.date!));
+  const today = dayjs(new Date()).format("MM-DD-YYYY");
   const entry = challenge.dailyEntries.find(
     (entry: SeventyFiveHardDailyEntry) =>
       dayjs(new Date(entry.date)).isSame(date, "day")
@@ -120,7 +125,7 @@ export default function Daily() {
           className="my-3"
           value={date}
           onChange={(newValue) =>
-            navigate(`../${newValue?.format("MM-DD-YYYY") || ""}`)
+            navigate(`../${newValue?.format("MM-DD-YYYY") || today}`)
           }
         />
         <input
