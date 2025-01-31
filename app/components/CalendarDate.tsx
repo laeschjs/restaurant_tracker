@@ -20,7 +20,7 @@ export default function CalendarDate(
   let badgeColor: "neutral" | "success" | "primary" = "neutral";
   let isStart = false;
   let isEnd = false;
-  const isAccomplished = accomplishedDays.includes(day.format("MM-DD-YYYY"));
+  const isAccomplished = accomplishedDays.includes(day.format("YYYY-MM-DD"));
   isStart = day.isSame(startDate, "day");
   const endDate = startDate.add(74, "day");
   isEnd = day.isSame(endDate, "day");
@@ -37,7 +37,7 @@ export default function CalendarDate(
 
   return (
     <Badge
-      key={day.format("MM-DD-YYYY")}
+      key={day.format("YYYY-MM-DD")}
       anchorOrigin={{ vertical: "top", horizontal: "right" }}
       badgeContent={badgeContent}
       color={badgeColor}
