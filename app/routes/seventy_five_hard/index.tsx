@@ -58,8 +58,7 @@ export default function Index() {
             <input
               className="hidden"
               name="startDate"
-              value={startDate?.format("MM/DD/YYYY")}
-              onChange={() => ""}
+              value={startDate?.format("MM-DD-YYYY")}
             />
             <Button type="submit" color="success" size="lg" className="block">
               Start!
@@ -96,10 +95,10 @@ export default function Index() {
           }}
           slotProps={{
             day: {
-              startDate: new Date(challenge.startDate),
+              startDate: dayjs(challenge.startDate),
               accomplishedDays: accomplishedDays.map(
                 (entry: SeventyFiveHardDailyEntry) =>
-                  new Date(entry.date).toDateString()
+                  dayjs(entry.date).format("MM-DD-YYYY")
               ),
             } as any,
           }}

@@ -26,10 +26,26 @@ export async function createChallenge({
   });
 }
 
-export async function createOrUpdateDailyEntry({
-  id,
+export async function createDailyEntry({
   challengeId,
   date,
+}: Pick<SeventyFiveHardDailyEntry, "challengeId" | "date">) {
+  return prisma.seventyFiveHardDailyEntry.create({
+    data: {
+      challengeId,
+      date,
+      drankWater: false,
+      indoorWorkout: false,
+      outdoorWorkout: false,
+      readTenPages: false,
+      followedDiet: false,
+      imageTaken: false,
+    },
+  });
+}
+
+export async function updateDailyEntry({
+  id,
   weight,
   drankWater,
   indoorWorkout,
@@ -37,21 +53,10 @@ export async function createOrUpdateDailyEntry({
   readTenPages,
   followedDiet,
   imageTaken,
-}: SeventyFiveHardDailyEntry) {
-  return prisma.seventyFiveHardDailyEntry.upsert({
+}: Omit<SeventyFiveHardDailyEntry, "challengeId" | "date">) {
+  return prisma.seventyFiveHardDailyEntry.update({
     where: { id },
-    create: {
-      challengeId,
-      date,
-      weight,
-      drankWater,
-      indoorWorkout,
-      outdoorWorkout,
-      readTenPages,
-      followedDiet,
-      imageTaken,
-    },
-    update: {
+    data: {
       weight,
       drankWater,
       indoorWorkout,
