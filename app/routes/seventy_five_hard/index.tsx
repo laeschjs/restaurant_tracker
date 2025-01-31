@@ -58,7 +58,7 @@ export default function Index() {
             <input
               className="hidden"
               name="startDate"
-              value={startDate?.format("MM-DD-YYYY")}
+              value={startDate?.format("YYYY-MM-DD")}
             />
             <Button type="submit" color="success" size="lg" className="block">
               Start!
@@ -98,7 +98,7 @@ export default function Index() {
               startDate: dayjs(challenge.startDate),
               accomplishedDays: accomplishedDays.map(
                 (entry: SeventyFiveHardDailyEntry) =>
-                  dayjs(entry.date).format("MM-DD-YYYY")
+                  dayjs(entry.date).format("YYYY-MM-DD")
               ),
             } as any,
           }}

@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 
 export default function Index() {
   const user = useUser();
-  const today = dayjs().format("MM-DD-YYYY");
+  const today = dayjs().format("YYYY-MM-DD");
 
   return (
     <div className="flex h-full min-h-screen flex-col">

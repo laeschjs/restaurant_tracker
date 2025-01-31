@@ -26,7 +26,7 @@ import { useEffect, useState } from "react";
 
 export async function loader({ request, params }: LoaderArgs) {
   if (!params.date || !dayjs(params.date).isValid()) {
-    const today = dayjs().format("MM-DD-YYYY");
+    const today = dayjs().format("YYYY-MM-DD");
     return redirect(`../${today}`);
   }
   const userId = await requireUserId(request);
@@ -66,7 +66,7 @@ export default function Daily() {
   const { entry } = useLoaderData<typeof loader>();
   const actionData = useActionData();
   const navigate = useNavigate();
-  const today = dayjs(new Date()).format("MM-DD-YYYY");
+  const today = dayjs(new Date()).format("YYYY-MM-DD");
   const [weight, setWeight] = useState(entry.weight || "");
   const [drankWater, setDrankWater] = useState(entry.drankWater);
   const [indoorWorkout, setIndoorWorkout] = useState(entry.indoorWorkout);
@@ -118,7 +118,7 @@ export default function Daily() {
           className="my-3"
           value={dayjs(entry.date)}
           onChange={(newValue) =>
-            navigate(`../${newValue?.format("MM-DD-YYYY") || today}`)
+            navigate(`../${newValue?.format("YYYY-MM-DD") || today}`)
           }
         />
         <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
