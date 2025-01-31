@@ -4,7 +4,6 @@ import {
   useActionData,
   useLoaderData,
   useNavigate,
-  useParams,
 } from "@remix-run/react";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
@@ -16,7 +15,8 @@ import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 
 import { requireUserId } from "~/session.server";
 import {
-  createOrUpdateDailyEntry,
+  createDailyEntry,
+  updateDailyEntry,
   getChallengesForUser,
 } from "~/models/seventyFiveHard";
 
@@ -26,22 +26,30 @@ import { useEffect, useState } from "react";
 
 export async function loader({ request, params }: LoaderArgs) {
   if (!params.date || !dayjs(params.date).isValid()) {
-    const today = dayjs(new Date()).format("MM-DD-YYYY");
+    const today = dayjs().format("MM-DD-YYYY");
     return redirect(`../${today}`);
   }
   const userId = await requireUserId(request);
   const challenges = await getChallengesForUser({ userId });
-  return json({ challenge: challenges[0] });
+  const challenge = challenges[0];
+  let entry = challenge.dailyEntries.find((entry: SeventyFiveHardDailyEntry) =>
+    dayjs(entry.date).isSame(dayjs(new Date(params.date!).toISOString()), "day")
+  );
+  if (!entry) {
+    entry = await createDailyEntry({
+      challengeId: challenge.id,
+      date: new Date(params.date),
+    });
+  }
+  return json({ entry });
 }
 
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData();
   const data = Object.fromEntries(formData);
 
-  await createOrUpdateDailyEntry({
+  await updateDailyEntry({
     id: `${data.entryId}`,
-    challengeId: `${data.challengeId}`,
-    date: new Date(`${data.date}`),
     weight: parseFloat(`${data.weight}`),
     drankWater: data.drankWater === "on",
     indoorWorkout: data.indoorWorkout === "on",
@@ -55,40 +63,26 @@ export async function action({ request }: ActionArgs) {
 }
 
 export default function Daily() {
-  const { challenge } = useLoaderData();
+  const { entry } = useLoaderData<typeof loader>();
   const actionData = useActionData();
-  const params = useParams();
   const navigate = useNavigate();
-  const date = dayjs(new Date(params.date!));
   const today = dayjs(new Date()).format("MM-DD-YYYY");
-  const entry = challenge.dailyEntries.find(
-    (entry: SeventyFiveHardDailyEntry) =>
-      dayjs(new Date(entry.date)).isSame(date, "day")
-  );
-  const [weight, setWeight] = useState(entry?.weight ?? "");
-  const [drankWater, setDrankWater] = useState(entry?.drankWater ?? false);
-  const [indoorWorkout, setIndoorWorkout] = useState(
-    entry?.indoorWorkout ?? false
-  );
-  const [outdoorWorkout, setOutdoorWorkout] = useState(
-    entry?.outdoorWorkout ?? false
-  );
-  const [readTenPages, setReadTenPages] = useState(
-    entry?.readTenPages ?? false
-  );
-  const [followedDiet, setFollowedDiet] = useState(
-    entry?.followedDiet ?? false
-  );
-  const [imageTaken, setImageTaken] = useState(entry?.imageTaken ?? false);
+  const [weight, setWeight] = useState(entry.weight || "");
+  const [drankWater, setDrankWater] = useState(entry.drankWater);
+  const [indoorWorkout, setIndoorWorkout] = useState(entry.indoorWorkout);
+  const [outdoorWorkout, setOutdoorWorkout] = useState(entry.outdoorWorkout);
+  const [readTenPages, setReadTenPages] = useState(entry.readTenPages);
+  const [followedDiet, setFollowedDiet] = useState(entry.followedDiet);
+  const [imageTaken, setImageTaken] = useState(entry.imageTaken);
   useEffect(() => {
     if (entry) {
       setWeight(entry.weight || "");
-      setDrankWater(entry.drankWater || false);
-      setIndoorWorkout(entry.indoorWorkout || false);
-      setOutdoorWorkout(entry.outdoorWorkout || false);
-      setReadTenPages(entry.readTenPages || false);
-      setFollowedDiet(entry.followedDiet || false);
-      setImageTaken(entry.imageTaken || false);
+      setDrankWater(entry.drankWater);
+      setIndoorWorkout(entry.indoorWorkout);
+      setOutdoorWorkout(entry.outdoorWorkout);
+      setReadTenPages(entry.readTenPages);
+      setFollowedDiet(entry.followedDiet);
+      setImageTaken(entry.imageTaken);
     } else {
       setWeight("");
       setDrankWater(false);
@@ -120,18 +114,12 @@ export default function Daily() {
       )}
       <Form method="post">
         <input type="hidden" name="entryId" value={entry?.id || ""} />
-        <input type="hidden" name="challengeId" value={challenge.id} />
         <DatePicker
           className="my-3"
-          value={date}
+          value={dayjs(entry.date)}
           onChange={(newValue) =>
             navigate(`../${newValue?.format("MM-DD-YYYY") || today}`)
           }
-        />
-        <input
-          type="hidden"
-          name="date"
-          value={new Date(date?.format("MM/DD/YYYY")).toString()}
         />
         <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
           <span>Weight:</span>
