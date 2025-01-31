@@ -3,9 +3,11 @@ import Grid from "@mui/material/Unstable_Grid2"; // TODO: Update mui to v6 and c
 import { CreateOutlined, GridOn } from "@mui/icons-material";
 
 import { useUser } from "~/utils";
+import dayjs from "dayjs";
 
 export default function Index() {
   const user = useUser();
+  const today = dayjs(new Date()).format("MM-DD-YYYY");
 
   return (
     <div className="flex h-full min-h-screen flex-col">
@@ -52,7 +54,7 @@ export default function Index() {
           Progress
         </NavLink>
         <NavLink
-          to="/seventy_five_hard/daily"
+          to={`/seventy_five_hard/${today}`}
           className={({ isActive }) =>
             `ms-3 justify-self-start border-b p-4 text-xl hover:bg-sky-100 ${
               isActive

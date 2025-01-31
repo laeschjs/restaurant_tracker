@@ -1,6 +1,11 @@
 import { json } from "@remix-run/node";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useNavigate,
+  useParams,
+} from "@remix-run/react";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 import { Button, Sheet } from "@mui/joy";
@@ -17,7 +22,7 @@ import {
 
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import type { SeventyFiveHardDailyEntry } from "@prisma/client";
-import type { Dayjs } from "dayjs";
+import { useEffect, useState } from "react";
 
 export async function loader({ request }: LoaderArgs) {
   const userId = await requireUserId(request);
@@ -48,7 +53,9 @@ export async function action({ request }: ActionArgs) {
 export default function Daily() {
   const { challenge } = useLoaderData();
   const actionData = useActionData();
-  const [date, setDate] = useState<Dayjs | null>(dayjs());
+  const param = useParams();
+  const navigate = useNavigate();
+  const date = dayjs(new Date(param.date || ""));
   const entry = challenge.dailyEntries.find(
     (entry: SeventyFiveHardDailyEntry) =>
       dayjs(new Date(entry.date)).isSame(date, "day")
@@ -70,13 +77,13 @@ export default function Daily() {
   const [imageTaken, setImageTaken] = useState(entry?.imageTaken ?? false);
   useEffect(() => {
     if (entry) {
-      setWeight(entry.weight);
-      setDrankWater(entry.drankWater);
-      setIndoorWorkout(entry.indoorWorkout);
-      setOutdoorWorkout(entry.outdoorWorkout);
-      setReadTenPages(entry.readTenPages);
-      setFollowedDiet(entry.followedDiet);
-      setImageTaken(entry.imageTaken);
+      setWeight(entry.weight || "");
+      setDrankWater(entry.drankWater || false);
+      setIndoorWorkout(entry.indoorWorkout || false);
+      setOutdoorWorkout(entry.outdoorWorkout || false);
+      setReadTenPages(entry.readTenPages || false);
+      setFollowedDiet(entry.followedDiet || false);
+      setImageTaken(entry.imageTaken || false);
     } else {
       setWeight("");
       setDrankWater(false);
@@ -107,14 +114,20 @@ export default function Daily() {
         </Alert>
       )}
       <Form method="post">
-        <input type="hidden" name="entryId" value={entry?.id} />
+        <input type="hidden" name="entryId" value={entry?.id || ""} />
         <input type="hidden" name="challengeId" value={challenge.id} />
         <DatePicker
           className="my-3"
           value={date}
-          onChange={(newValue) => setDate(newValue)}
+          onChange={(newValue) =>
+            navigate(`../${newValue?.format("MM-DD-YYYY") || ""}`)
+          }
         />
-        <input type="hidden" name="date" value={date?.format("MM/DD/YYYY")} />
+        <input
+          type="hidden"
+          name="date"
+          value={new Date(date?.format("MM/DD/YYYY")).toString()}
+        />
         <label className="my-3 flex grid grid-cols-2 items-center justify-items-start gap-1">
           <span>Weight:</span>
           <TextField
