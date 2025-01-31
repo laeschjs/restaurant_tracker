@@ -7,24 +7,23 @@ import type { PickersDayProps } from "@mui/x-date-pickers";
 export default function CalendarDate(
   props: PickersDayProps<Dayjs> & {
     accomplishedDays?: string[];
-    startDate?: Date;
+    startDate?: Dayjs;
   }
 ) {
-  const { accomplishedDays = [], day, startDate, ...other } = props;
+  const { accomplishedDays, day, startDate, ...other } = props;
+
+  if (!startDate || !accomplishedDays || props.outsideCurrentMonth) {
+    return <PickersDay {...other} day={day} />;
+  }
 
   let badgeContent: string | number = 0;
   let badgeColor: "neutral" | "success" | "primary" = "neutral";
   let isStart = false;
   let isEnd = false;
-  const dateStringWithoutTimezone = day.toDate().toDateString();
-  const isAccomplished =
-    accomplishedDays.indexOf(dateStringWithoutTimezone) >= 0;
-  if (startDate) {
-    isStart = startDate.toDateString() === dateStringWithoutTimezone;
-    const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + 74);
-    isEnd = endDate.toDateString() === dateStringWithoutTimezone;
-  }
+  const isAccomplished = accomplishedDays.includes(day.format("MM-DD-YYYY"));
+  isStart = day.isSame(startDate, "day");
+  const endDate = startDate.add(74, "day");
+  isEnd = day.isSame(endDate, "day");
 
   if (isAccomplished) {
     badgeContent = "✅";
@@ -38,7 +37,7 @@ export default function CalendarDate(
 
   return (
     <Badge
-      key={day.toString()}
+      key={day.format("MM-DD-YYYY")}
       anchorOrigin={{ vertical: "top", horizontal: "right" }}
       badgeContent={badgeContent}
       color={badgeColor}
