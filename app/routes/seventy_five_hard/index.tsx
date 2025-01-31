@@ -58,7 +58,7 @@ export default function Index() {
             <input
               className="hidden"
               name="startDate"
-              value={startDate?.format("YYYY-MM-DD")}
+              value={startDate?.format("YYYY-MM-DDTHH:mm:ss")}
             />
             <Button type="submit" color="success" size="lg" className="block">
               Start!

@@ -33,12 +33,12 @@ export async function loader({ request, params }: LoaderArgs) {
   const challenges = await getChallengesForUser({ userId });
   const challenge = challenges[0];
   let entry = challenge.dailyEntries.find((entry: SeventyFiveHardDailyEntry) =>
-    dayjs(entry.date).isSame(dayjs(new Date(params.date!).toISOString()), "day")
+    dayjs(entry.date).isSame(dayjs(params.date!), "day")
   );
   if (!entry) {
     entry = await createDailyEntry({
       challengeId: challenge.id,
-      date: new Date(params.date),
+      date: new Date(`${params.date}T00:00:00`),
     });
   }
   return json({ entry });
@@ -66,7 +66,7 @@ export default function Daily() {
   const { entry } = useLoaderData<typeof loader>();
   const actionData = useActionData();
   const navigate = useNavigate();
-  const today = dayjs(new Date()).format("YYYY-MM-DD");
+  const today = dayjs().format("YYYY-MM-DD");
   const [weight, setWeight] = useState(entry.weight || "");
   const [drankWater, setDrankWater] = useState(entry.drankWater);
   const [indoorWorkout, setIndoorWorkout] = useState(entry.indoorWorkout);
