@@ -125,6 +125,19 @@ export default function MealForm({
         <input className="hidden" name="mealId" value={meal?.id} />
         {extras.map((extra, index) => (
           <div className="mt-3 border-t-2 border-gray-600" key={index}>
+            {extras.length > 1 && (
+              <div className="flex justify-end pt-2">
+                <button
+                  className="text-sm text-red-400 hover:text-red-600"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setExtras(extras.filter((_, i) => i !== index));
+                  }}
+                >
+                  Remove
+                </button>
+              </div>
+            )}
             <label className="my-3 flex grid grid-cols-4 items-center gap-1">
               <span className="col-span-1">Type: </span>
               <Select
